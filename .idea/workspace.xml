@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2ff4d363-c8c1-4a62-b458-1402e1282c10" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Vectors3D/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Vectors3D/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

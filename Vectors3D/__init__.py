@@ -1,3 +1,24 @@
+import math
+
+def dist(pos1, pos2):
+    distance = 0
+    for i in range(0, len(pos1)):
+        distance += (pos1[i] - pos2[i]) ** 2
+    distance = math.sqrt(distance)
+    return distance
+
+def dotProduct(vector1, vector2):
+    product = 0
+    for i in range(0, len(vector1)):
+        product += vector1[i] * vector2[i]
+    return product
+
+def crossProduct(vector1, vector2):
+    normal = []
+    normal.append(vector1[1] * vector2[2] - vector1[2] * vector2[1])
+    normal.append(vector1[2] * vector2[0] - vector1[0] * vector2[2])
+    normal.append(vector1[0] * vector2[1] - vector1[1] * vector2[0])
+
 #a point
 class Vertice:
     def __init__(self, x, y, z):
@@ -53,3 +74,10 @@ class Camera(Object):
         self.cameraVector = [1, 0, 0] #direction vector of where the camera is pointing
         self.xPlane = [0, 1, 0] #normal of the x-plane of the screen (3d points projected onto this plane create corresponding x-positions on a 2d screen)
         self.yPlane = [0, 0, 1] #normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
+    def project(self, objects):
+        for ob in objects:
+            if isinstance(ob, Mesh):
+                for vert in ob.vertices:
+                    if self.projectionType == "perspective":
+                        #convert vertice into vector away from camera
+                        vector = [(vert.x - self.position[0]), (vert.y - self.position[1]), (vert.z - self.positon[2])]
