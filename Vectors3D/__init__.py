@@ -1,9 +1,11 @@
 #a point
 class Vertice:
     def __init__(self, x, y, z):
+        #3d coordinates
         self.x = x
         self.y = y
         self.z = z
+        self.screenPos = [] #a 2d coordinate for where the vertice is to be displayed onto the screen
 #an edge connecting two points
 class Edge:
     def __init__(self, vert1, vert2):
@@ -44,6 +46,10 @@ class Mesh(Object):
 
 #the camera projects the scene onto the screen
 class Camera(Object):
-    def __init__(self, position, rotation, scale, fov):
+    def __init__(self, position, rotation, scale, fov, projectionType = "perspective"):
         super().__init__(position, rotation, scale)
-        self.fov = fov
+        self.fov = fov #field of vision
+        self.projectionType = projectionType
+        self.cameraVector = [1, 0, 0] #direction vector of where the camera is pointing
+        self.xPlane = [0, 1, 0] #normal of the x-plane of the screen (3d points projected onto this plane create corresponding x-positions on a 2d screen)
+        self.yPlane = [0, 0, 1] #normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
