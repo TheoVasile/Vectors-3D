@@ -28,11 +28,15 @@ while running:
     screen.fill((0, 0, 0))
 
     key = pg.key.get_pressed()
+    if key[pg.K_UP]:
+        camera.fov += 1
+    elif key[pg.K_DOWN]:
+        camera.fov -= 1
     if key[pg.K_w]:
         camera.set_pos([camera.position[0] + 1, camera.position[1], camera.position[2]])
     elif key[pg.K_s]:
         camera.set_pos([camera.position[0] - 1, camera.position[1], camera.position[2]])
-    elif key[pg.K_a]:
+    if key[pg.K_a]:
         camera.set_pos([camera.position[0], camera.position[1] + 1, camera.position[2]])
     elif key[pg.K_d]:
         camera.set_pos([camera.position[0], camera.position[1] - 1, camera.position[2]])
@@ -41,6 +45,8 @@ while running:
 
     for vert in cube.vertices:
         pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
+    for edge in cube.edges:
+        pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
     clock.tick(fps)
     pg.display.update()
