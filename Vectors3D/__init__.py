@@ -81,22 +81,33 @@ class Camera(Object):
             if isinstance(ob, Mesh):
                 for vert in ob.vertices:
                     if self.projectionType == "perspective":
-                        #convert vertice into vector away from camera
+                        # convert vertice into vector away from camera
                         vector = [(vert.x - self.position[0]), (vert.y - self.position[1]), (vert.z - self.position[2])]
 
-                        #project the vector onto the x-component of the camera
+                        # project the vector onto the x-component of the camera
                         xProjection = dotProduct(self.xPlane, vector) / (dist(self.xPlane, [0, 0, 0])**2)
                         xVector = (vector[0] - xProjection * self.xPlane[0], vector[1] - xProjection * self.xPlane[1], vector[2] - xProjection * self.xPlane[2])
 
-
+                        # find the angle between the x-component of the vector and the direction of the camera
                         xAngle = math.degrees(math.acos(dotProduct(self.cameraVector, xVector) / (math.dist(self.cameraVector, [0, 0, 0]) * math.dist(xVector, [0, 0, 0]))))
+                        #account for negative angles
+                        if vector[0] * self.yPlane[0] + vector[1] * self.yPlane[1] + vector[2] * self.yPlane[2] < 0:
+                            xAngle *= -1
+
+                        # convert the ratio between the angles into a definite x-position
                         xpos = (self.width * xAngle) / ((self.fov * self.width) / max([self.width, self.height])) + self.width / 2
 
                         # project the vector onto the x-component of the camera
                         yProjection = dotProduct(self.yPlane, vector) / (dist(self.yPlane, [0, 0, 0]) ** 2)
                         yVector = (vector[0] - yProjection * self.yPlane[0], vector[1] - yProjection * self.yPlane[1], vector[2] - yProjection * self.yPlane[2])
 
+                        # find the angle between the y-component of the vector and the direction of the camera
                         yAngle = math.degrees(math.acos(dotProduct(self.cameraVector, yVector) / (math.dist(self.cameraVector, [0, 0, 0]) * math.dist(yVector, [0, 0, 0]))))
+                        if vector[0] * self.xPlane[0] + vector[1] * self.xPlane[1] + vector[2] * self.xPlane[2] < 0:
+                            yAngle *= -1
+
+                        # convert the ratio between the angles into a definite y-position
                         ypos = (self.height * yAngle) / ((self.fov * self.height) / max([self.width, self.height])) + self.height / 2
 
+                        # set the screen position of the vertice
                         vert.screenPos = [int(xpos), int(ypos)]
