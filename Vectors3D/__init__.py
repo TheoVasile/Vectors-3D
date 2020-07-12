@@ -74,8 +74,8 @@ class Camera(Object):
         self.fov = fov #field of vision
         self.projectionType = projectionType
         self.cameraVector = [1, 0, 0] #direction vector of where the camera is pointing
-        self.xPlane = [0, 1, 0] #normal of the x-plane of the screen (3d points projected onto this plane create corresponding x-positions on a 2d screen)
-        self.yPlane = [0, 0, 1] #normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
+        self.xPlane = [0, 0, 1] #normal of the x-plane of the screen (3d points projected onto this plane create corresponding x-positions on a 2d screen)
+        self.yPlane = [0, 1, 0] #normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
     def project(self, objects):
         for ob in objects:
             if isinstance(ob, Mesh):
