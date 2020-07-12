@@ -27,6 +27,16 @@ while running:
 
     screen.fill((0, 0, 0))
 
+    key = pg.key.get_pressed()
+    if key[pg.K_w]:
+        camera.set_pos([camera.position[0] + 1, camera.position[1], camera.position[2]])
+    elif key[pg.K_s]:
+        camera.set_pos([camera.position[0] - 1, camera.position[1], camera.position[2]])
+    elif key[pg.K_a]:
+        camera.set_pos([camera.position[0], camera.position[1] + 1, camera.position[2]])
+    elif key[pg.K_d]:
+        camera.set_pos([camera.position[0], camera.position[1] - 1, camera.position[2]])
+
     camera.project([cube])
 
     for vert in cube.vertices:
