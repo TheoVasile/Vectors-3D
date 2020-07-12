@@ -40,12 +40,12 @@ class Face:
 #superclass for all objects
 class Object:
     def __init__(self, position, rotation, scale):
-        self.positon = position
+        self.position = position
         self.pivotPoint = position
         self.rotation = rotation
         self.scale = scale
     def get_pos(self):
-        return self.positon
+        return self.position
     def set_pos(self, pos):
         self.position = pos
     def get_rot(self):
@@ -67,8 +67,10 @@ class Mesh(Object):
 
 #the camera projects the scene onto the screen
 class Camera(Object):
-    def __init__(self, position, rotation, scale, fov, projectionType = "perspective"):
+    def __init__(self, position, rotation, scale, width, height, fov, projectionType = "perspective"):
         super().__init__(position, rotation, scale)
+        self.width = width
+        self.height = height
         self.fov = fov #field of vision
         self.projectionType = projectionType
         self.cameraVector = [1, 0, 0] #direction vector of where the camera is pointing
@@ -80,4 +82,21 @@ class Camera(Object):
                 for vert in ob.vertices:
                     if self.projectionType == "perspective":
                         #convert vertice into vector away from camera
-                        vector = [(vert.x - self.position[0]), (vert.y - self.position[1]), (vert.z - self.positon[2])]
+                        vector = [(vert.x - self.position[0]), (vert.y - self.position[1]), (vert.z - self.position[2])]
+
+                        #project the vector onto the x-component of the camera
+                        xProjection = dotProduct(self.xPlane, vector) / (dist(self.xPlane, [0, 0, 0])**2)
+                        xVector = (vector[0] - xProjection * self.xPlane[0], vector[1] - xProjection * self.xPlane[1], vector[2] - xProjection * self.xPlane[2])
+
+
+                        xAngle = math.degrees(math.acos(dotProduct(self.cameraVector, xVector) / (math.dist(self.cameraVector, [0, 0, 0]) * math.dist(xVector, [0, 0, 0]))))
+                        xpos = (self.width * xAngle) / ((self.fov * self.width) / max([self.width, self.height])) + self.width / 2
+
+                        # project the vector onto the x-component of the camera
+                        yProjection = dotProduct(self.yPlane, vector) / (dist(self.yPlane, [0, 0, 0]) ** 2)
+                        yVector = (vector[0] - yProjection * self.yPlane[0], vector[1] - yProjection * self.yPlane[1], vector[2] - yProjection * self.yPlane[2])
+
+                        yAngle = math.degrees(math.acos(dotProduct(self.cameraVector, yVector) / (math.dist(self.cameraVector, [0, 0, 0]) * math.dist(yVector, [0, 0, 0]))))
+                        ypos = (self.height * yAngle) / ((self.fov * self.height) / max([self.width, self.height])) + self.height / 2
+
+                        vert.screenPos = [int(xpos), int(ypos)]

@@ -17,7 +17,7 @@ faces = [v3d.Face([verts[0], verts[1], verts[-1], verts[5]]), v3d.Face([verts[1]
 cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
 
 #create a camera
-camera = v3d.Camera([-50, 0, 0], [0, 0, 0], [1, 1, 1], 30)
+camera = v3d.Camera([-50, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30)
 
 running = True
 while running:
@@ -26,6 +26,11 @@ while running:
             running = False
 
     screen.fill((0, 0, 0))
+
+    camera.project([cube])
+
+    for vert in cube.vertices:
+        pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
 
     clock.tick(fps)
     pg.display.update()
