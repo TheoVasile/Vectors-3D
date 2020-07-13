@@ -100,7 +100,7 @@ class Mesh(Object):
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
 
             if rot[2] != 0:
-                # z axisa
+                # z axis
                 length = dist([vector[0], vector[1]], [0, 0, 0])
                 if vert.x >= self.pivotPoint[0] and vert.y >= self.pivotPoint[1]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
