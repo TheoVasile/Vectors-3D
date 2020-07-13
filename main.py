@@ -1,5 +1,6 @@
 import pygame as pg
 import Vectors3D as v3d
+import math
 
 pg.init()
 
@@ -46,7 +47,8 @@ while running:
     camera.project([cube])
 
     for tri in cube.tris:
-        color = [255, 255, 255]
+        angle = math.degrees(math.acos(v3d.dotProduct(tri.normal, camera.cameraVector) / (v3d.dist(tri.normal, [0, 0, 0]) * v3d.dist(camera.cameraVector, [0, 0, 0]))))
+        color = [int((angle) * (255/180)), int((angle) * (255/180)), int((angle) * (255/180))]
         pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
     for edge in cube.edges:
         pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
