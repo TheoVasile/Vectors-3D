@@ -37,10 +37,10 @@ while running:
     elif key[pg.K_s]:
         camera.set_pos([camera.position[0] - 1, camera.position[1], camera.position[2]])
     if key[pg.K_a]:
-        cube.set_rot([cube.get_rot()[0] + 1, 0, 0])
+        cube.set_rot([cube.get_rot()[0] + 1, cube.get_rot()[1] + 5, cube.get_rot()[2] + 1])
         #camera.set_pos([camera.position[0], camera.position[1] + 1, camera.position[2]])
     elif key[pg.K_d]:
-        cube.set_rot([cube.get_rot()[0] - 1, 0, 0])
+        cube.set_rot([cube.get_rot()[0], cube.get_rot()[1], cube.get_rot()[2] - 5])
         #camera.set_pos([camera.position[0], camera.position[1] - 1, camera.position[2]])
 
     camera.project([cube])
