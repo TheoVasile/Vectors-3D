@@ -48,7 +48,8 @@ while running:
 
     for tri in cube.tris:
         angle = math.degrees(math.acos(v3d.dotProduct(tri.normal, camera.cameraVector) / (v3d.dist(tri.normal, [0, 0, 0]) * v3d.dist(camera.cameraVector, [0, 0, 0]))))
-        color = [int((angle) * (255/180)), int((angle) * (255/180)), int((angle) * (255/180))]
+        angle = math.degrees(math.asin(math.sin(math.radians(angle))))
+        color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90))]
         pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
     for edge in cube.edges:
         pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
