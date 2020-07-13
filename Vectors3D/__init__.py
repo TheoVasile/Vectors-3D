@@ -54,11 +54,22 @@ class Face:
             self.tris = []
             for i in range(1, len(self.vertices) - 1):
                 self.tris.append(Face([self.vertices[0], self.vertices[i], self.vertices[i + 1]]))
-            self.normal = average([tri.normal for tri in self.tris])
-        elif len(self.vertices) == 3:
+        self.calculateNormals()
+    def calculateCenter(self):
+        if self.isTri:
+            self.center = average([[vert.x, vert.y, vert.z] for vert in self.vertices])
+        elif not self.isTri:
+            for tri in self.tris:
+                tri.calculateCenter()
+    def calculateNormals(self):
+        if self.isTri:
             self.normal = crossProduct([self.vertices[0].x - self.vertices[1].x, self.vertices[0].y - self.vertices[1].y, self.vertices[0].z - self.vertices[1].z],
                                        [self.vertices[0].x - self.vertices[2].x, self.vertices[0].y - self.vertices[2].y, self.vertices[0].z - self.vertices[2].z])
-            print(self.normal)
+        elif not self.isTri:
+            self.normal = average([tri.normal for tri in self.tris])
+            for tri in self.tris:
+                tri.calculateNormals()
+
 
 #superclass for all objects
 class Object:
@@ -198,3 +209,6 @@ class Camera(Object):
 
                         # set the screen position of the vertice
                         vert.screenPos = [int(xpos), int(ypos)]
+                for face in ob.faces:
+                    face.calculateCenter()
+                    face.calculateNormals()
