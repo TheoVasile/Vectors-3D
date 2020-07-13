@@ -212,3 +212,14 @@ class Camera(Object):
                 for face in ob.faces:
                     face.calculateCenter()
                     face.calculateNormals()
+
+                tris = [tri for tri in ob.tris]
+                dists = [dist(tri.center, self.position) for tri in ob.tris]
+                newTris = []
+                while len(tris) > 0:
+                    index = dists.index(max(dists))
+                    selectedTri = tris[index]
+                    newTris.append(selectedTri)
+                    tris.pop(index)
+                    dists.pop(index)
+                ob.tris = newTris
