@@ -18,6 +18,15 @@ def crossProduct(vector1, vector2):
     normal.append(vector1[1] * vector2[2] - vector1[2] * vector2[1])
     normal.append(vector1[2] * vector2[0] - vector1[0] * vector2[2])
     normal.append(vector1[0] * vector2[1] - vector1[1] * vector2[0])
+    return normal
+def average(vectors):
+    average = []
+    for i in range(0, len(vectors[0])):
+        average.append(0)
+        for vector in vectors:
+            average[i] += vector[i]
+        average[i] /= len(vectors[0])
+    return average
 
 #a point
 class Vertice:
@@ -36,6 +45,20 @@ class Edge:
 class Face:
     def __init__(self, vertices):
         self.vertices = vertices
+        self.isTri = True
+        self.normal = [0, 0, 0]
+        self.center = average([[vert.x, vert.y, vert.z] for vert in self.vertices])
+        #calculations are easier if faces contain only 3 points. Make a list of subfaces (tris) made up of 3 vertices
+        if len(self.vertices) > 3:
+            self.isTri = False
+            self.tris = []
+            for i in range(1, len(self.vertices) - 1):
+                self.tris.append(Face([self.vertices[0], self.vertices[i], self.vertices[i + 1]]))
+            self.normal = average([tri.normal for tri in self.tris])
+        elif len(self.vertices) == 3:
+            self.normal = crossProduct([self.vertices[0].x - self.vertices[1].x, self.vertices[0].y - self.vertices[1].y, self.vertices[0].z - self.vertices[1].z],
+                                       [self.vertices[0].x - self.vertices[2].x, self.vertices[0].y - self.vertices[2].y, self.vertices[0].z - self.vertices[2].z])
+            print(self.normal)
 
 #superclass for all objects
 class Object:
@@ -64,6 +87,13 @@ class Mesh(Object):
         self.vertices = vertices
         self.edges = edges
         self.faces = faces
+        #contains all subfaces, made up only of 3 vertices
+        self.tris = []
+        for face in self.faces:
+            if face.isTri:
+                self.tris.append(face)
+            elif not face.isTri:
+                self.tris += face.tris
     def set_rot(self, rot):
         for vert in self.vertices:
             vector = [vert.x - self.pivotPoint[0], vert.y - self.pivotPoint[1], vert.z - self.pivotPoint[2]]

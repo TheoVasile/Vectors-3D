@@ -45,9 +45,9 @@ while running:
 
     camera.project([cube])
 
-    for face in cube.faces:
+    for tri in cube.tris:
         color = [255, 255, 255]
-        pg.draw.polygon(screen, color, [vert.screenPos for vert in face.vertices], 0)
+        pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
     for edge in cube.edges:
         pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
     for vert in cube.vertices:
