@@ -64,6 +64,31 @@ class Mesh(Object):
         self.vertices = vertices
         self.edges = edges
         self.faces = faces
+    def set_rot(self, rot):
+        #rotation = [rot[0] - self.rotation[0], rot[1] - self.rotation[1], rot[2] - self.rotation[2]]
+        for vert in self.vertices:
+            vector = [vert.x - self.pivotPoint[0], vert.y - self.pivotPoint[1], vert.z - self.pivotPoint[2]]
+            # x axis
+            length = math.sqrt((vert.y - self.pivotPoint[1]) ** 2 + (vert.z - self.pivotPoint[2]) ** 2)
+            if vert.y >= self.pivotPoint[1] and vert.z >= self.pivotPoint[2]:
+                vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + rot[0]))
+                vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + rot[0]))
+            elif vert.y < self.pivotPoint[1] and vert.z >= self.pivotPoint[2]:
+                vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + rot[0]))
+                vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - rot[0]))
+            elif vert.y < self.pivotPoint[1] and vert.z < self.pivotPoint[2]:
+                vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - rot[0]))
+                vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - rot[0]))
+            elif vert.y >= self.pivotPoint[1] and vert.z < self.pivotPoint[2]:
+                vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - rot[0]))
+                vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + rot[0]))
+
+            vert.x = self.pivotPoint[0] + vector[0]
+            vert.y = self.pivotPoint[1] + vector[1]
+            vert.z = self.pivotPoint[2] + vector[2]
+
+        self.rotation[0] = rot[0]
+
 
 #the camera projects the scene onto the screen
 class Camera(Object):
