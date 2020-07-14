@@ -62,7 +62,7 @@ while running:
             pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
     pivotPoint = camera.projectPoint(cube.position)
-    pg.draw.circle(screen, (255, 255, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
+    pg.draw.circle(screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
 
     oldPos = pg.mouse.get_pos()
 

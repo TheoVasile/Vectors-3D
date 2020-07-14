@@ -202,8 +202,10 @@ class Camera(Object):
                        vector[2] - xProjection * self.xPlane[2])
 
             # find the angle between the x-component of the vector and the direction of the camera
-            xAngle = math.degrees(math.acos(dotProduct(self.cameraVector, xVector) / (
-                        math.dist(self.cameraVector, [0, 0, 0]) * math.dist(xVector, [0, 0, 0]))))
+            try:
+                xAngle = math.degrees(math.acos(dotProduct(self.cameraVector, xVector) / (math.dist(self.cameraVector, [0, 0, 0]) * math.dist(xVector, [0, 0, 0]))))
+            except:
+                xAngle = 90
             # account for negative angles
             if vector[0] * self.yPlane[0] + vector[1] * self.yPlane[1] + vector[2] * self.yPlane[2] < 0:
                 xAngle *= -1
@@ -217,8 +219,10 @@ class Camera(Object):
                        vector[2] - yProjection * self.yPlane[2])
 
             # find the angle between the y-component of the vector and the direction of the camera
-            yAngle = math.degrees(math.acos(dotProduct(self.cameraVector, yVector) / (
-                        math.dist(self.cameraVector, [0, 0, 0]) * math.dist(yVector, [0, 0, 0]))))
+            try:
+                yAngle = math.degrees(math.acos(dotProduct(self.cameraVector, yVector) / (math.dist(self.cameraVector, [0, 0, 0]) * math.dist(yVector, [0, 0, 0]))))
+            except:
+                yAngle = 90
             if vector[0] * self.xPlane[0] + vector[1] * self.xPlane[1] + vector[2] * self.xPlane[2] < 0:
                 yAngle *= -1
 
