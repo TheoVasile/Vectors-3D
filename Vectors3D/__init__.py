@@ -127,7 +127,8 @@ class Mesh(Object):
             vector = [vert.x - self.position[0], vert.y - self.position[1], vert.z - self.position[2]]
             if rot[0] != 0:
                 # x axis
-                length = dist([vector[1], vector[2]], [0, 0, 0])
+                #length = dist([vert.y, vert.z], [self.position[1], self.position[2]])
+                length = dist([vector[1], vector[2]], [0, 0])
                 if vert.y >= self.position[1] and vert.z >= self.position[2]:
                     vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - self.rotation[0] + rot[0]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
@@ -140,10 +141,14 @@ class Mesh(Object):
                 elif vert.y >= self.position[1] and vert.z < self.position[2]:
                     vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + self.rotation[0] - rot[0]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
+                vert.x = self.position[0] + vector[0]
+                vert.y = self.position[1] + vector[1]
+                vert.z = self.position[2] + vector[2]
 
             if rot[1] != 0:
                 # y axis
-                length = dist([vector[0], vector[2]], [0, 0, 0])
+                #length = dist([vert.x, vert.z], [self.position[0], self.position[2]])
+                length = dist([vector[0], vector[2]], [0, 0])
                 if vert.x >= self.position[0] and vert.z >= self.position[2]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[1] + rot[1]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
@@ -156,10 +161,14 @@ class Mesh(Object):
                 elif vert.x >= self.position[0] and vert.z < self.position[2]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[1] - rot[1]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
+                vert.x = self.position[0] + vector[0]
+                vert.y = self.position[1] + vector[1]
+                vert.z = self.position[2] + vector[2]
 
             if rot[2] != 0:
                 # z axis
-                length = dist([vector[0], vector[1]], [0, 0, 0])
+                #length = dist([vert.x, vert.y], [self.position[0], self.position[1]])
+                length = dist([vector[0], vector[1]], [0, 0])
                 if vert.x >= self.position[0] and vert.y >= self.position[1]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
                     vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
@@ -173,11 +182,11 @@ class Mesh(Object):
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[2] - rot[2]))
                     vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
 
-            vert.x = self.position[0] + vector[0]
-            vert.y = self.position[1] + vector[1]
-            vert.z = self.position[2] + vector[2]
+                vert.x = self.position[0] + vector[0]
+                vert.y = self.position[1] + vector[1]
+                vert.z = self.position[2] + vector[2]
 
-        self.rotation[0] = rot[0]
+        self.rotation = rot
 
 
 #the camera projects the scene onto the screen

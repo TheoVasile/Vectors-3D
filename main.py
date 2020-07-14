@@ -48,6 +48,8 @@ while running:
 
     if pg.mouse.get_pressed()[0]:
         cube.set_pos([cube.position[0], cube.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, cube.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
+    if key[pg.K_r]:
+        cube.set_rot([cube.rotation[0], cube.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), cube.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
 
     camera.project([cube])
 
