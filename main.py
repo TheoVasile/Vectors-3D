@@ -17,8 +17,11 @@ edges = [v3d.Edge(verts[2], verts[3]), v3d.Edge(verts[2], verts[-2]), v3d.Edge(v
 faces = [v3d.Face([verts[0], verts[1], verts[-1], verts[5]]), v3d.Face([verts[1], verts[-1], verts[6], verts[2]]), v3d.Face([verts[2], verts[3], verts[0], verts[1]]), v3d.Face([verts[0], verts[3], verts[4], verts[5]]), v3d.Face([verts[3], verts[2], verts[6], verts[4]]), v3d.Face([verts[5], verts[-1], verts[6], verts[4]])]
 cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
 
-#create a camera
-camera = v3d.Camera([-50, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30)
+camera = v3d.Camera([-50, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30) #camera displays scene
+
+objects = [cube, camera] #list of all objects in the scene
+selectedObject = cube
+selectedCamera = camera
 
 oldPos = pg.mouse.get_pos()
 
@@ -29,48 +32,47 @@ while running:
             running = False
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_TAB:
-                if cube.mode == "object":
-                    cube.mode = "edit"
-                elif cube.mode == "edit":
-                    cube.mode = "object"
+                if selectedObject:
+                    if selectedObject.mode == "object":
+                        selectedObject.mode = "edit"
+                    elif selectedObject.mode == "edit":
+                        selectedObject.mode = "object"
 
     screen.fill((0, 0, 0))
 
     key = pg.key.get_pressed()
     if key[pg.K_UP]:
-        camera.fov += 1
+        selectedCamera.fov += 1
     elif key[pg.K_DOWN]:
-        camera.fov -= 1
+        selectedCamera.fov -= 1
     if key[pg.K_w]:
-        camera.set_pos([camera.position[0] + 1, camera.position[1], camera.position[2]])
+        selectedCamera.set_pos([selectedCamera.position[0] + 1, selectedCamera.position[1], selectedCamera.position[2]])
     elif key[pg.K_s]:
-        camera.set_pos([camera.position[0] - 1, camera.position[1], camera.position[2]])
+        selectedCamera.set_pos([selectedCamera.position[0] - 1, selectedCamera.position[1], selectedCamera.position[2]])
     if key[pg.K_a]:
-        cube.set_rot([cube.get_rot()[0] + 1, cube.get_rot()[1] + 5, cube.get_rot()[2] + 1])
-        #camera.set_pos([camera.position[0], camera.position[1] + 1, camera.position[2]])
+        selectedObject.set_rot([selectedObject.get_rot()[0] + 1, selectedObject.get_rot()[1] + 5, selectedObject.get_rot()[2] + 1])
     elif key[pg.K_d]:
-        cube.set_rot([cube.get_rot()[0], cube.get_rot()[1], cube.get_rot()[2] - 5])
-        #camera.set_pos([camera.position[0], camera.position[1] - 1, camera.position[2]])
+        selectedObject.set_rot([selectedObject.get_rot()[0], selectedObject.get_rot()[1], selectedObject.get_rot()[2] - 5])
 
     if pg.mouse.get_pressed()[0]:
-        cube.set_pos([cube.position[0], cube.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, cube.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
+        selectedObject.set_pos([selectedObject.position[0], selectedObject.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, selectedObject.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
     if key[pg.K_r]:
-        cube.set_rot([cube.rotation[0], cube.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), cube.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
+        selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
 
-    camera.project([cube])
+    selectedCamera.project(objects)
 
-    for tri in cube.tris:
-        angle = math.degrees(math.acos(v3d.dotProduct(tri.normal, camera.cameraVector) / (v3d.dist(tri.normal, [0, 0, 0]) * v3d.dist(camera.cameraVector, [0, 0, 0]))))
+    for tri in selectedObject.tris:
+        angle = math.degrees(math.acos(v3d.dotProduct(tri.normal, selectedCamera.cameraVector) / (v3d.dist(tri.normal, [0, 0, 0]) * v3d.dist(selectedCamera.cameraVector, [0, 0, 0]))))
         angle = math.degrees(math.asin(math.sin(math.radians(angle))))
         color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90))]
         pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
-        if cube.mode == "edit":
+        if selectedObject.mode == "edit":
             for vert in tri.vertices:
                 pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
             for edge in tri.edges:
                 pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
-    pivotPoint = camera.projectPoint(cube.position)
+    pivotPoint = selectedCamera.projectPoint(selectedObject.position)
     pg.draw.circle(screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
 
     oldPos = pg.mouse.get_pos()
