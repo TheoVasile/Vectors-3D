@@ -85,7 +85,7 @@ class Face:
 class Object:
     def __init__(self, position, rotation, scale):
         self.position = position
-        self.pivotPoint = position
+        #self.position = position
         self.rotation = rotation
         self.scale = scale
     def get_pos(self):
@@ -124,58 +124,58 @@ class Mesh(Object):
         self.position = pos
     def set_rot(self, rot):
         for vert in self.vertices:
-            vector = [vert.x - self.pivotPoint[0], vert.y - self.pivotPoint[1], vert.z - self.pivotPoint[2]]
+            vector = [vert.x - self.position[0], vert.y - self.position[1], vert.z - self.position[2]]
             if rot[0] != 0:
                 # x axis
                 length = dist([vector[1], vector[2]], [0, 0, 0])
-                if vert.y >= self.pivotPoint[1] and vert.z >= self.pivotPoint[2]:
+                if vert.y >= self.position[1] and vert.z >= self.position[2]:
                     vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - self.rotation[0] + rot[0]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
-                elif vert.y < self.pivotPoint[1] and vert.z >= self.pivotPoint[2]:
+                elif vert.y < self.position[1] and vert.z >= self.position[2]:
                     vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - self.rotation[0] + rot[0]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[0] - rot[0]))
-                elif vert.y < self.pivotPoint[1] and vert.z < self.pivotPoint[2]:
+                elif vert.y < self.position[1] and vert.z < self.position[2]:
                     vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + self.rotation[0] - rot[0]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[0] - rot[0]))
-                elif vert.y >= self.pivotPoint[1] and vert.z < self.pivotPoint[2]:
+                elif vert.y >= self.position[1] and vert.z < self.position[2]:
                     vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + self.rotation[0] - rot[0]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
 
             if rot[1] != 0:
                 # y axis
                 length = dist([vector[0], vector[2]], [0, 0, 0])
-                if vert.x >= self.pivotPoint[0] and vert.z >= self.pivotPoint[2]:
+                if vert.x >= self.position[0] and vert.z >= self.position[2]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[1] + rot[1]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
-                elif vert.x < self.pivotPoint[0] and vert.z >= self.pivotPoint[2]:
+                elif vert.x < self.position[0] and vert.z >= self.position[2]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[1] + rot[1]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[1] - rot[1]))
-                elif vert.x < self.pivotPoint[0] and vert.z < self.pivotPoint[2]:
+                elif vert.x < self.position[0] and vert.z < self.position[2]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[1] - rot[1]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[1] - rot[1]))
-                elif vert.x >= self.pivotPoint[0] and vert.z < self.pivotPoint[2]:
+                elif vert.x >= self.position[0] and vert.z < self.position[2]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[1] - rot[1]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
 
             if rot[2] != 0:
                 # z axis
                 length = dist([vector[0], vector[1]], [0, 0, 0])
-                if vert.x >= self.pivotPoint[0] and vert.y >= self.pivotPoint[1]:
+                if vert.x >= self.position[0] and vert.y >= self.position[1]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
                     vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
-                elif vert.x < self.pivotPoint[0] and vert.y >= self.pivotPoint[1]:
+                elif vert.x < self.position[0] and vert.y >= self.position[1]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
                     vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) + self.rotation[2] - rot[2]))
-                elif vert.x < self.pivotPoint[0] and vert.y < self.pivotPoint[1]:
+                elif vert.x < self.position[0] and vert.y < self.position[1]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[2] - rot[2]))
                     vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) + self.rotation[2] - rot[2]))
-                elif vert.x >= self.pivotPoint[0] and vert.y < self.pivotPoint[1]:
+                elif vert.x >= self.position[0] and vert.y < self.position[1]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[2] - rot[2]))
                     vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
 
-            vert.x = self.pivotPoint[0] + vector[0]
-            vert.y = self.pivotPoint[1] + vector[1]
-            vert.z = self.pivotPoint[2] + vector[2]
+            vert.x = self.position[0] + vector[0]
+            vert.y = self.position[1] + vector[1]
+            vert.z = self.position[2] + vector[2]
 
         self.rotation[0] = rot[0]
 
