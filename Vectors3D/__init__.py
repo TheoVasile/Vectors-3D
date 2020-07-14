@@ -83,11 +83,12 @@ class Face:
 
 #superclass for all objects
 class Object:
-    def __init__(self, position, rotation, scale):
+    def __init__(self, position, rotation, scale, mode = "object"):
         self.position = position
         #self.position = position
         self.rotation = rotation
         self.scale = scale
+        self.mode = mode
     def get_pos(self):
         return self.position
     def set_pos(self, pos):

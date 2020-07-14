@@ -27,6 +27,12 @@ while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
+        elif event.type == pg.KEYDOWN:
+            if event.key == pg.K_TAB:
+                if cube.mode == "object":
+                    cube.mode = "edit"
+                elif cube.mode == "edit":
+                    cube.mode = "object"
 
     screen.fill((0, 0, 0))
 
@@ -58,10 +64,11 @@ while running:
         angle = math.degrees(math.asin(math.sin(math.radians(angle))))
         color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90))]
         pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
-        for vert in tri.vertices:
-            pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
-        for edge in tri.edges:
-            pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
+        if cube.mode == "edit":
+            for vert in tri.vertices:
+                pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
+            for edge in tri.edges:
+                pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
     pivotPoint = camera.projectPoint(cube.position)
     pg.draw.circle(screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
