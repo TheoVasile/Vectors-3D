@@ -20,6 +20,8 @@ cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
 #create a camera
 camera = v3d.Camera([-50, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30)
 
+oldPos = pg.mouse.get_pos()
+
 running = True
 while running:
     for event in pg.event.get():
@@ -44,6 +46,9 @@ while running:
         cube.set_rot([cube.get_rot()[0], cube.get_rot()[1], cube.get_rot()[2] - 5])
         #camera.set_pos([camera.position[0], camera.position[1] - 1, camera.position[2]])
 
+    if pg.mouse.get_pressed()[0]:
+        cube.set_pos([cube.position[0], cube.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, cube.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
+
     camera.project([cube])
 
     for tri in cube.tris:
@@ -55,6 +60,8 @@ while running:
             pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
         for edge in tri.edges:
             pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
+
+    oldPos = pg.mouse.get_pos()
 
     clock.tick(fps)
     pg.display.update()

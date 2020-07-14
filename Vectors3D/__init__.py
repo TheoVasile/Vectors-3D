@@ -115,6 +115,13 @@ class Mesh(Object):
                 self.tris.append(face)
             elif not face.isTri:
                 self.tris += face.tris
+    def set_pos(self, pos):
+        vector = [pos[i] - self.position[i] for i in range(0, 3)]
+        for vert in self.vertices:
+            vert.x += vector[0]
+            vert.y += vector[1]
+            vert.z += vector[2]
+        self.position = pos
     def set_rot(self, rot):
         for vert in self.vertices:
             vector = [vert.x - self.pivotPoint[0], vert.y - self.pivotPoint[1], vert.z - self.pivotPoint[2]]
