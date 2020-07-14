@@ -41,10 +41,16 @@ class Edge:
     def __init__(self, vert1, vert2):
         self.vert1 = vert1
         self.vert2 = vert2
+    def get_verts(self):
+        return [self.vert1, self.vert2]
 #a face with a combination of points and edges
 class Face:
-    def __init__(self, vertices):
+    def __init__(self, vertices, edges=[]):
         self.vertices = vertices
+        if len(edges) == 0:
+            self.edges = [Edge(vertices[i], vertices[i+1]) for i in range(0, len(vertices)-1)]
+        else:
+            self.edges = edges
         self.isTri = True
         self.normal = [0, 0, 0]
         self.center = average([[vert.x, vert.y, vert.z] for vert in self.vertices])
@@ -53,7 +59,11 @@ class Face:
             self.isTri = False
             self.tris = []
             for i in range(1, len(self.vertices) - 1):
-                self.tris.append(Face([self.vertices[0], self.vertices[i], self.vertices[i + 1]]))
+                triEdges = []
+                for edge in self.edges:
+                    if edge.vert2 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]] and edge.vert1 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]]:
+                        triEdges.append(edge)
+                self.tris.append(Face([self.vertices[0], self.vertices[i], self.vertices[i + 1]], triEdges))
         self.calculateNormals()
     def calculateCenter(self):
         if self.isTri:

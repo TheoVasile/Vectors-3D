@@ -53,8 +53,8 @@ while running:
         pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
         for vert in tri.vertices:
             pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
-    for edge in cube.edges:
-        pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
+        for edge in tri.edges:
+            pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
     clock.tick(fps)
     pg.display.update()
