@@ -51,10 +51,10 @@ while running:
         angle = math.degrees(math.asin(math.sin(math.radians(angle))))
         color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90))]
         pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
+        for vert in tri.vertices:
+            pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
     for edge in cube.edges:
         pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
-    for vert in cube.vertices:
-        pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
 
     clock.tick(fps)
     pg.display.update()
