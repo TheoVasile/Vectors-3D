@@ -61,6 +61,9 @@ while running:
         for edge in tri.edges:
             pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
+    pivotPoint = camera.projectPoint(cube.pivotPoint)
+    pg.draw.circle(screen, (255, 255, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
+
     oldPos = pg.mouse.get_pos()
 
     clock.tick(fps)
