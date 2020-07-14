@@ -48,7 +48,7 @@ class Face:
     def __init__(self, vertices, edges=[]):
         self.vertices = vertices
         if len(edges) == 0:
-            self.edges = [Edge(vertices[i], vertices[i+1]) for i in range(0, len(vertices)-1)]
+            self.edges = [Edge(vertices[i], vertices[i-1]) for i in range(0, len(vertices))]
         else:
             self.edges = edges
         self.isTri = True
