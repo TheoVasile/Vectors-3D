@@ -1,4 +1,5 @@
 import math
+import itertools
 
 def dist(pos1, pos2):
     distance = 0
@@ -36,6 +37,12 @@ class Vertice:
         self.y = y
         self.z = z
         self.screenPos = [] #a 2d coordinate for where the vertice is to be displayed onto the screen
+    def get_pos(self):
+        return self.x, self.y, self.z
+    def set_pos(self, pos):
+        self.x = pos[0]
+        self.y = pos[1]
+        self.z = pos[2]
 #an edge connecting two points
 class Edge:
     def __init__(self, vert1, vert2):
@@ -188,6 +195,26 @@ class Mesh(Object):
                 vert.z = self.position[2] + vector[2]
 
         self.rotation = rot
+    #returns all edges connected to a vertice
+    def edgesFrom(self, vertice):
+        edges = []
+        for edge in self.edges:
+            if vertice in edge.get_verts():
+                edges.append(edge)
+        return edges
+    def trisFrom(self, vertice):
+        tris = []
+        for tri in self.tris:
+            if vertice in tri.vertices:
+                tris.append(tri)
+        return tris
+    #returns all faces connected to a vertice
+    def facesFrom(self, vertice):
+        faces = []
+        for face in self.edges:
+            if vertice in face.vertices:
+                faces.append(face)
+        return faces
 
 
 #the camera projects the scene onto the screen
@@ -245,13 +272,18 @@ class Camera(Object):
     def project(self, objects):
         for ob in objects:
             if isinstance(ob, Mesh):
+                verts = []
+                vertDist = []
                 for vert in ob.vertices:
                     screenPos = self.projectPoint([vert.x, vert.y, vert.z])
                     vert.screenPos = [int(screenPos[0]), int(screenPos[1])]
+                    verts.append(vert)
+                    vertDist.append(dist(vert.get_pos(), self.position))
                 for face in ob.faces:
                     face.calculateCenter()
                     face.calculateNormals()
 
+                """
                 tris = [tri for tri in ob.tris]
                 dists = [dist(tri.center, self.position) for tri in ob.tris]
                 newTris = []
@@ -262,3 +294,95 @@ class Camera(Object):
                     tris.pop(index)
                     dists.pop(index)
                 ob.tris = newTris
+                """
+
+                """
+                faces = []
+                while len(verts) > 0:
+                    vert = verts[vertDist.index(max(vertDist))]
+                    connectedTris = ob.trisFrom(vert)
+                    triDists = [dist(tri.center, self.position) for tri in connectedTris]
+                    print(triDists)
+                    while len(connectedTris) > 0:
+                        index = triDists.index(max(triDists))
+                        if connectedTris[index] not in faces:
+                            faces.append(connectedTris[index])
+                        connectedTris.pop(index)
+                        triDists.pop(index)
+                    verts.pop(vertDist.index(max(vertDist)))
+                    vertDist.pop(vertDist.index(max(vertDist)))
+                ob.tris = faces
+                """
+
+                remainingVerts = verts.copy()
+                remainingVertDists = vertDist.copy()
+                tris = []
+                while len(remainingVerts) > 0:
+                    print(f"""remaining verts = {remainingVerts}""")
+                    closestVert = remainingVerts[remainingVertDists.index(max(remainingVertDists))]
+                    connectedTris = ob.trisFrom(closestVert)
+                    connectedTrisDists = []
+                    for tri in connectedTris.copy():
+                        if tri in tris:
+                            print('--')
+                            print(tri)
+                            print(connectedTris)
+                            connectedTris.remove(tri)
+                            print(connectedTris)
+                            print('--')
+                        else:
+                            print("yuh")
+                            connectedTrisDists.append([vertDist[verts.index(tri.vertices[i])] for i in range(0, 3) if tri.vertices[i] != closestVert])
+                    print(f"""connected tris = {connectedTris}""")
+                    print(f"""connected dist = {connectedTrisDists}""")
+                    print(f"""tris = {tris}""")
+                    print(connectedTrisDists)
+                    while len(connectedTris) > 0:
+                        maxDist = max(list(itertools.chain.from_iterable(connectedTrisDists)))
+                        maxIndex = int(list(itertools.chain.from_iterable(connectedTrisDists)).index(maxDist) / 2)
+                        maxTri = connectedTris[maxIndex]
+                        tris.append(maxTri)
+                        connectedTris.pop(maxIndex)
+                        connectedTrisDists.pop(maxIndex)
+                    remainingVerts.remove(closestVert)
+                    remainingVertDists.remove(max(remainingVertDists))
+                ob.tris = tris
+
+                """
+                tris = []
+                while len(verts) > 0:
+                    #vertice furthest to the camera
+                    vert = verts[vertDist.index(max(vertDist))]
+                    #all faces that connect to that vertice
+                    connectedTris = ob.trisFrom(vert)
+                    #print(f\"""connectedtris = {connectedTris}\""")
+                    maxTri = None #tri corresponding to furthest point
+                    #organize all connected tris in order of greatest to least distance from camera
+                    while len(connectedTris) > 0:
+                        #print(f\"""len = {len(connectedTris)}\""")
+                        #print(f\"""connectedTris = {connectedTris}\""")
+                        #print(f\"""tris = {tris}\""")
+                        maxVal = 0  # furthest distance from camera
+                        #iterate through all the tris
+                        for tri in connectedTris:
+                            #print(f\"""currenttri = {tri}\""")
+                            #vertices corresponding to tri
+                            triVerts = tri.vertices.copy()
+                            #print(f\"""triVerts = {triVerts}\""")
+                            #print(f\"""vert = {vert}\""")
+                            #remove the origin vertice from the list
+                            #triVerts.remove(vert)
+                            triVerts.pop(triVerts.index(vert))
+                            triVertDists = [dist(triVert.get_pos(), self.position) for triVert in triVerts]
+                            triMax = max(triVertDists)
+                            if triMax > maxVal and tri in connectedTris:
+                                maxVal = triMax
+                                maxTri = tri
+                        #print(f\"""maxTri = {maxTri}\""")
+                        tris.append(maxTri)
+                        connectedTris.remove(maxTri)
+                        #connectedTris.pop(connectedTris.index(maxTri))
+                    verts.pop(vertDist.index(max(vertDist)))
+                    vertDist.pop(vertDist.index(max(vertDist)))
+                ob.tris = tris
+                """

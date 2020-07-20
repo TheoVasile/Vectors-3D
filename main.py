@@ -59,6 +59,8 @@ while running:
     if key[pg.K_r]:
         selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
 
+    #selectedObject.set_rot([45, 45, 75])
+
     selectedCamera.project(objects)
 
     for tri in selectedObject.tris:
