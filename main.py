@@ -63,16 +63,18 @@ while running:
 
     selectedCamera.project(objects)
 
-    for tri in selectedObject.tris:
-        angle = math.degrees(math.acos(v3d.dotProduct(tri.normal, selectedCamera.cameraVector) / (v3d.dist(tri.normal, [0, 0, 0]) * v3d.dist(selectedCamera.cameraVector, [0, 0, 0]))))
-        angle = math.degrees(math.asin(math.sin(math.radians(angle))))
-        color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90))]
-        pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
-        if selectedObject.mode == "edit":
-            for vert in tri.vertices:
-                pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
-            for edge in tri.edges:
-                pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
+    for ob in objects:
+        if isinstance(ob, v3d.Mesh):
+            for tri in ob.tris:
+                angle = math.degrees(math.acos(v3d.dotProduct(tri.normal, selectedCamera.cameraVector) / (v3d.dist(tri.normal, [0, 0, 0]) * v3d.dist(selectedCamera.cameraVector, [0, 0, 0]))))
+                angle = math.degrees(math.asin(math.sin(math.radians(angle))))
+                color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90))]
+                pg.draw.polygon(screen, color, [vert.screenPos for vert in tri.vertices], 0)
+                if selectedObject.mode == "edit":
+                    for vert in tri.vertices:
+                        pg.draw.circle(screen, (255, 255, 255), vert.screenPos, 2, 0)
+                    for edge in tri.edges:
+                        pg.draw.line(screen, (255, 255, 255), (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
     pivotPoint = selectedCamera.projectPoint(selectedObject.position)
     pg.draw.circle(screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
