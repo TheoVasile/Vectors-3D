@@ -20,7 +20,7 @@ cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
 camera = v3d.Camera([-50, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30) #camera displays scene
 
 objects = [cube, camera] #list of all objects in the scene
-selectedObject = cube
+selectedObject = None
 selectedCamera = camera
 
 oldPos = pg.mouse.get_pos()
@@ -40,24 +40,25 @@ while running:
 
     screen.fill((0, 0, 0))
 
-    key = pg.key.get_pressed()
-    if key[pg.K_UP]:
-        selectedCamera.fov += 1
-    elif key[pg.K_DOWN]:
-        selectedCamera.fov -= 1
-    if key[pg.K_w]:
-        selectedCamera.set_pos([selectedCamera.position[0] + 1, selectedCamera.position[1], selectedCamera.position[2]])
-    elif key[pg.K_s]:
-        selectedCamera.set_pos([selectedCamera.position[0] - 1, selectedCamera.position[1], selectedCamera.position[2]])
-    if key[pg.K_a]:
-        selectedObject.set_rot([selectedObject.get_rot()[0] + 1, selectedObject.get_rot()[1] + 5, selectedObject.get_rot()[2] + 1])
-    elif key[pg.K_d]:
-        selectedObject.set_rot([selectedObject.get_rot()[0], selectedObject.get_rot()[1], selectedObject.get_rot()[2] - 5])
+    if selectedObject:
+        key = pg.key.get_pressed()
+        if key[pg.K_UP]:
+            selectedCamera.fov += 1
+        elif key[pg.K_DOWN]:
+            selectedCamera.fov -= 1
+        if key[pg.K_w]:
+            selectedCamera.set_pos([selectedCamera.position[0] + 1, selectedCamera.position[1], selectedCamera.position[2]])
+        elif key[pg.K_s]:
+            selectedCamera.set_pos([selectedCamera.position[0] - 1, selectedCamera.position[1], selectedCamera.position[2]])
+        if key[pg.K_a]:
+            selectedObject.set_rot([selectedObject.get_rot()[0] + 1, selectedObject.get_rot()[1] + 5, selectedObject.get_rot()[2] + 1])
+        elif key[pg.K_d]:
+            selectedObject.set_rot([selectedObject.get_rot()[0], selectedObject.get_rot()[1], selectedObject.get_rot()[2] - 5])
 
-    if pg.mouse.get_pressed()[0]:
-        selectedObject.set_pos([selectedObject.position[0], selectedObject.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, selectedObject.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
-    if key[pg.K_r]:
-        selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
+        if pg.mouse.get_pressed()[0]:
+            selectedObject.set_pos([selectedObject.position[0], selectedObject.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, selectedObject.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
+        if key[pg.K_r]:
+            selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
 
     #selectedObject.set_rot([45, 45, 75])
 
@@ -80,8 +81,8 @@ while running:
                     for edge in tri.edges:
                         pg.draw.line(screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
-    pivotPoint = selectedCamera.projectPoint(selectedObject.position)
-    pg.draw.circle(screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
+        pivotPoint = selectedCamera.projectPoint(ob.position)
+        pg.draw.circle(screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
 
     oldPos = pg.mouse.get_pos()
 
