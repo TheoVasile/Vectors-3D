@@ -37,6 +37,9 @@ while running:
                         selectedObject.mode = "edit"
                     elif selectedObject.mode == "edit":
                         selectedObject.mode = "object"
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            if event.button == pg.BUTTON_LEFT:
+                selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
 
     screen.fill((0, 0, 0))
 

@@ -386,3 +386,5 @@ class Camera(Object):
                     vertDist.pop(vertDist.index(max(vertDist)))
                 ob.tris = tris
                 """
+    def selectObject(self, objects, mousePos):
+        return objects[0]
