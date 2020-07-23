@@ -1,5 +1,6 @@
 import math
 import itertools
+import pygame as pg
 
 # returns the distance between two points, regardless of dimensions
 def dist(pos1, pos2):
@@ -264,6 +265,7 @@ class Camera(Object):
         self.cameraVector = [1, 0, 0] #direction vector of where the camera is pointing
         self.xPlane = [0, 0, 1] #normal of the x-plane of the screen (3d points projected onto this plane create corresponding x-positions on a 2d screen)
         self.yPlane = [0, 1, 0] #normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
+        self.screen = pg.display.set_mode((self.width, self.height))
     def projectPoint(self, point):
         if self.projectionType == "perspective":
             # convert vertice into vector away from camera
@@ -354,6 +356,34 @@ class Camera(Object):
                     remainingVerts.remove(closestVert)
                     remainingVertDists.remove(max(remainingVertDists))
                 ob.tris = tris
+
+    def display(self, objects, selectedObject):
+        for ob in objects:
+            if isinstance(ob, Mesh):
+                for tri in ob.tris:
+                    # displays a face
+                    angle = math.degrees(math.acos(dotProduct(tri.normal, self.cameraVector) / (
+                                dist(tri.normal, [0, 0, 0]) * dist(self.cameraVector, [0, 0, 0]))))
+                    angle = math.degrees(math.asin(math.sin(math.radians(angle))))
+                    # the closer the angle between the normal and the direction of the camera is to 90 degrees, the darker the color
+                    # the closer the angle between the normal and the direction of the camera is to 0 degrees, the lighter the color
+                    color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)),
+                             int(255 * ((90 - angle) / 90))]
+                    pg.draw.polygon(self.screen, color, [vert.screenPos for vert in tri.vertices], 0)
+                    # selected objects have yellow edges
+                    edgeColor = (255, 255, 255)
+                    if ob == selectedObject:
+                        edgeColor = (255, 200, 0)
+                    if ob.mode == "edit":
+                        for vert in tri.vertices:
+                            pg.draw.circle(self.screen, edgeColor, vert.screenPos, 2, 0)
+                    # edges should only be displayed if the object is selected or in edit mode
+                    if ob.mode == "edit" or (ob.mode == "object" and ob == selectedObject):
+                        for edge in tri.edges:
+                            pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
+
+            pivotPoint = self.projectPoint(ob.position)
+            pg.draw.circle(self.screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
 
     def selectObject(self, objects, mousePos):
         for ob in objects:
