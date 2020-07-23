@@ -118,6 +118,7 @@ class Object:
         self.rotation = rotation
         self.scale = scale
         self.mode = mode #different objects will have different modes that can be activated for specific features
+        self.selected = False
     def get_pos(self):
         return self.position
     def set_pos(self, pos):
@@ -357,7 +358,7 @@ class Camera(Object):
                     remainingVertDists.remove(max(remainingVertDists))
                 ob.tris = tris
 
-    def display(self, objects, selectedObject):
+    def display(self, objects):
         for ob in objects:
             if isinstance(ob, Mesh):
                 for tri in ob.tris:
@@ -372,13 +373,13 @@ class Camera(Object):
                     pg.draw.polygon(self.screen, color, [vert.screenPos for vert in tri.vertices], 0)
                     # selected objects have yellow edges
                     edgeColor = (255, 255, 255)
-                    if ob == selectedObject:
+                    if ob.selected:
                         edgeColor = (255, 200, 0)
                     if ob.mode == "edit":
                         for vert in tri.vertices:
                             pg.draw.circle(self.screen, edgeColor, vert.screenPos, 2, 0)
                     # edges should only be displayed if the object is selected or in edit mode
-                    if ob.mode == "edit" or (ob.mode == "object" and ob == selectedObject):
+                    if ob.mode == "edit" or (ob.mode == "object" and ob.selected):
                         for edge in tri.edges:
                             pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
