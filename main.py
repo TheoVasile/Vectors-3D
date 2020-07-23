@@ -19,7 +19,7 @@ cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
 
 camera = v3d.Camera([-25, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30) # camera displays scene
 
-objects = [cube, camera] # list of all objects in the scene
+objects = [v3d.createSphere(32, 16), camera] # list of all objects in the scene
 selectedObject = None
 selectedCamera = camera
 

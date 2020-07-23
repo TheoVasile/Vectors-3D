@@ -429,3 +429,15 @@ class Camera(Object):
                             break
                     if cursorInTri:
                         return ob
+
+def createSphere(segments, rings):
+    vertices = []
+    for ring in range(0, rings):
+        z = 2 / rings * (ring - rings/2)
+        r = math.sqrt(1 - z ** 2)
+        for segment in range(0, segments):
+            dAngle = 360 / segments
+            x = r * math.cos(math.radians(segment * dAngle))
+            y = r * math.sin(math.radians(segment * dAngle))
+            vertices.append(Vertice(x, y, z))
+    return Mesh((0, 0, 0), [0, 0, 0], [1, 1, 1], vertices, [], [])
