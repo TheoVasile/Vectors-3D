@@ -23,6 +23,9 @@ objects = [cube, camera] #list of all objects in the scene
 selectedObject = None
 selectedCamera = camera
 
+rotate = False
+move = False
+
 oldPos = pg.mouse.get_pos()
 
 running = True
@@ -37,30 +40,35 @@ while running:
                         selectedObject.mode = "edit"
                     elif selectedObject.mode == "edit":
                         selectedObject.mode = "object"
+            elif event.key == pg.K_g and selectedObject:
+                if move == True:
+                    move = False
+                elif move == False:
+                    move = True
+            elif event.key == pg.K_r and selectedObject:
+                if rotate == True:
+                    rotate = False
+                elif rotate == False:
+                    rotate = True
         elif event.type == pg.MOUSEBUTTONDOWN:
             if event.button == pg.BUTTON_LEFT:
                 selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
 
     screen.fill((0, 0, 0))
 
+    key = pg.key.get_pressed()
+    if key[pg.K_UP]:
+        selectedCamera.fov += 1
+    elif key[pg.K_DOWN]:
+        selectedCamera.fov -= 1
+    if key[pg.K_w]:
+        selectedCamera.set_pos([selectedCamera.position[0] + 1, selectedCamera.position[1], selectedCamera.position[2]])
+    elif key[pg.K_s]:
+        selectedCamera.set_pos([selectedCamera.position[0] - 1, selectedCamera.position[1], selectedCamera.position[2]])
     if selectedObject:
-        key = pg.key.get_pressed()
-        if key[pg.K_UP]:
-            selectedCamera.fov += 1
-        elif key[pg.K_DOWN]:
-            selectedCamera.fov -= 1
-        if key[pg.K_w]:
-            selectedCamera.set_pos([selectedCamera.position[0] + 1, selectedCamera.position[1], selectedCamera.position[2]])
-        elif key[pg.K_s]:
-            selectedCamera.set_pos([selectedCamera.position[0] - 1, selectedCamera.position[1], selectedCamera.position[2]])
-        if key[pg.K_a]:
-            selectedObject.set_rot([selectedObject.get_rot()[0] + 1, selectedObject.get_rot()[1] + 5, selectedObject.get_rot()[2] + 1])
-        elif key[pg.K_d]:
-            selectedObject.set_rot([selectedObject.get_rot()[0], selectedObject.get_rot()[1], selectedObject.get_rot()[2] - 5])
-
-        if pg.mouse.get_pressed()[0]:
+        if move:
             selectedObject.set_pos([selectedObject.position[0], selectedObject.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, selectedObject.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
-        if key[pg.K_r]:
+        if rotate:
             selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
 
     #selectedObject.set_rot([45, 45, 75])
