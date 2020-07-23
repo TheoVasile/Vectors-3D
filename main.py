@@ -52,7 +52,11 @@ while running:
                     rotate = True
         elif event.type == pg.MOUSEBUTTONDOWN:
             if event.button == pg.BUTTON_LEFT:
-                selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
+                if not move and not rotate:
+                    selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
+                if move or rotate:
+                    move = False
+                    rotate = False
 
     screen.fill((0, 0, 0))
 
@@ -70,8 +74,6 @@ while running:
             selectedObject.set_pos([selectedObject.position[0], selectedObject.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, selectedObject.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
         if rotate:
             selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
-
-    #selectedObject.set_rot([45, 45, 75])
 
     selectedCamera.project(objects)
 
