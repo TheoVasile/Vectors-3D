@@ -19,8 +19,8 @@ cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
 
 camera = v3d.Camera([-25, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30) # camera displays scene
 
-objects = [v3d.createSphere(32, 16), camera] # list of all objects in the scene
-selectedObject = None
+objects = [v3d.createSphere(16, 12), camera] # list of all objects in the scene
+selectedObject = objects[0]
 selectedCamera = camera
 
 rotate = False # indicates wether or not the selected object is in the process of being rotated

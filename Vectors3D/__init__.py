@@ -432,6 +432,7 @@ class Camera(Object):
 
 def createSphere(segments, rings):
     vertices = []
+    edges = []
     for ring in range(0, rings):
         z = 2 / rings * (ring - rings/2)
         r = math.sqrt(1 - z ** 2)
@@ -440,4 +441,8 @@ def createSphere(segments, rings):
             x = r * math.cos(math.radians(segment * dAngle))
             y = r * math.sin(math.radians(segment * dAngle))
             vertices.append(Vertice(x, y, z))
-    return Mesh((0, 0, 0), [0, 0, 0], [1, 1, 1], vertices, [], [])
+            if len(vertices) > 1:
+                edges.append(Edge(vertices[-1], vertices[-2]))
+            if len(vertices) > segments:
+                edges.append(Edge(vertices[-1], vertices[-segments - 1]))
+    return Mesh((0, 0, 0), [0, 0, 0], [1, 1, 1], vertices, edges, [])
