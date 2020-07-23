@@ -1,27 +1,34 @@
 import math
 import itertools
 
+# returns the distance between two points, regardless of dimensions
 def dist(pos1, pos2):
     distance = 0
+    #iterate through each axis
     for i in range(0, len(pos1)):
         distance += (pos1[i] - pos2[i]) ** 2
     distance = math.sqrt(distance)
     return distance
 
+# returns dot product of 2 vectors, regardless of dimensions
 def dotProduct(vector1, vector2):
-    product = 0
+    product = 0 # product is a scalar value
     for i in range(0, len(vector1)):
         product += vector1[i] * vector2[i]
     return product
 
+# returns the cross product of 2 vectors
 def crossProduct(vector1, vector2):
-    normal = []
+    normal = [] # result of cross product is a vector perpendicular to both vectors, the normal
     normal.append(vector1[1] * vector2[2] - vector1[2] * vector2[1])
     normal.append(vector1[2] * vector2[0] - vector1[0] * vector2[2])
     normal.append(vector1[0] * vector2[1] - vector1[1] * vector2[0])
     return normal
+
+#returns the average location of a series of points, regardless of dimensions
 def average(vectors):
-    average = []
+    average = [] # average point
+    #iterate through each axis
     for i in range(0, len(vectors[0])):
         average.append(0)
         for vector in vectors:
@@ -29,55 +36,70 @@ def average(vectors):
         average[i] /= len(vectors[0])
     return average
 
-#a point
+# a point in 3D space
 class Vertice:
     def __init__(self, x, y, z):
-        #3d coordinates
+        # 3D coordinates
         self.x = x
         self.y = y
         self.z = z
-        self.screenPos = [] #a 2d coordinate for where the vertice is to be displayed onto the screen
+        self.screenPos = [] # a 2D coordinate for where the vertice is to be displayed onto the screen
     def get_pos(self):
         return self.x, self.y, self.z
     def set_pos(self, pos):
         self.x = pos[0]
         self.y = pos[1]
         self.z = pos[2]
-#an edge connecting two points
+
+# an edge connecting two points
 class Edge:
     def __init__(self, vert1, vert2):
+        # the 2 points are inputed as Vertices
         self.vert1 = vert1
         self.vert2 = vert2
+    # returns the vertices the edge connects
     def get_verts(self):
         return [self.vert1, self.vert2]
-#a face with a combination of points and edges
+
+# a face with a combination of points and edges
 class Face:
     def __init__(self, vertices, edges=[]):
-        self.vertices = vertices
+        self.vertices = vertices # lists all the points that the face connects to, as Vertices
+        # unless otherwise given, the edges will be created by joining Vertices in the order they were inputed
         if len(edges) == 0:
             self.edges = [Edge(vertices[i], vertices[i-1]) for i in range(0, len(vertices))]
         else:
+            # edges can be defined manually
             self.edges = edges
-        self.isTri = True
-        self.normal = [0, 0, 0]
-        self.center = average([[vert.x, vert.y, vert.z] for vert in self.vertices])
-        #calculations are easier if faces contain only 3 points. Make a list of subfaces (tris) made up of 3 vertices
+        self.isTri = True # states wether or not the face is made of only 3 points
+        self.normal = [0, 0, 0] # the vector perpendicular to the face
+        self.center = average([[vert.x, vert.y, vert.z] for vert in self.vertices]) #the center of the face
+
+        # calculations are easier if faces are triangles made only of 3 points.
+        # subfaces (tris) are created to break down the face into triangles
         if len(self.vertices) > 3:
-            self.isTri = False
-            self.tris = []
+            self.isTri = False # the face is not a tri
+            self.tris = [] # lists all triangle subfaces
             for i in range(1, len(self.vertices) - 1):
+                # since the parent face is not a triangle, some edges that a triangle would normally have will not exist in the parent face
+                # determine which edges of the triangle are present in the parent face
+                # if an edge in the tri does not exist in the parent face, it won't be a part of it's edge list
                 triEdges = []
                 for edge in self.edges:
                     if edge.vert2 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]] and edge.vert1 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]]:
                         triEdges.append(edge)
                 self.tris.append(Face([self.vertices[0], self.vertices[i], self.vertices[i + 1]], triEdges))
-        self.calculateNormals()
+        self.calculateNormals() # determine the normal vectors
+
+    # calculates the middle of the face, as well as its subfaces
     def calculateCenter(self):
         if self.isTri:
             self.center = average([[vert.x, vert.y, vert.z] for vert in self.vertices])
         elif not self.isTri:
             for tri in self.tris:
                 tri.calculateCenter()
+
+    # calculates the normal vector of the face, as well as its subfaces
     def calculateNormals(self):
         if self.isTri:
             self.normal = crossProduct([self.vertices[0].x - self.vertices[1].x, self.vertices[0].y - self.vertices[1].y, self.vertices[0].z - self.vertices[1].z],
@@ -92,10 +114,9 @@ class Face:
 class Object:
     def __init__(self, position, rotation, scale, mode = "object"):
         self.position = position
-        #self.position = position
         self.rotation = rotation
         self.scale = scale
-        self.mode = mode
+        self.mode = mode #different objects will have different modes that can be activated for specific features
     def get_pos(self):
         return self.position
     def set_pos(self, pos):
@@ -124,7 +145,9 @@ class Mesh(Object):
             elif not face.isTri:
                 self.tris += face.tris
     def set_pos(self, pos):
+        # find the vector connecting the initial position and the final position
         vector = [pos[i] - self.position[i] for i in range(0, 3)]
+        # add that vector to all the vertices so that they all move along with the object
         for vert in self.vertices:
             vert.x += vector[0]
             vert.y += vector[1]
@@ -132,11 +155,16 @@ class Mesh(Object):
         self.position = pos
     def set_rot(self, rot):
         for vert in self.vertices:
+            # find the vector connecting the object position (which will function as a pivot point) to the vertice position
             vector = [vert.x - self.position[0], vert.y - self.position[1], vert.z - self.position[2]]
             if rot[0] != 0:
                 # x axis
-                #length = dist([vert.y, vert.z], [self.position[1], self.position[2]])
+                # x axis rotations will only affect the y and z axis components of the vector
+                # distance of the vector only in the y and z axis
                 length = dist([vector[1], vector[2]], [0, 0])
+
+                # adjust the vector to be offset by the difference between the initial rotation and final rotation in the x axis
+                # different vertice orientations must be accounted for differently for consistent results
                 if vert.y >= self.position[1] and vert.z >= self.position[2]:
                     vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - self.rotation[0] + rot[0]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
@@ -149,13 +177,16 @@ class Mesh(Object):
                 elif vert.y >= self.position[1] and vert.z < self.position[2]:
                     vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + self.rotation[0] - rot[0]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
+
+                # new vertice position will be the result of the object position and the new vector
                 vert.x = self.position[0] + vector[0]
                 vert.y = self.position[1] + vector[1]
                 vert.z = self.position[2] + vector[2]
 
             if rot[1] != 0:
                 # y axis
-                #length = dist([vert.x, vert.z], [self.position[0], self.position[2]])
+                # y axis rotations will only affect the x and z axis components of the vector
+                # distance of the vector only in the x and z axis
                 length = dist([vector[0], vector[2]], [0, 0])
                 if vert.x >= self.position[0] and vert.z >= self.position[2]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[1] + rot[1]))
@@ -169,13 +200,16 @@ class Mesh(Object):
                 elif vert.x >= self.position[0] and vert.z < self.position[2]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[1] - rot[1]))
                     vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
+
+                # new vertice position will be the result of the object position and the new vector
                 vert.x = self.position[0] + vector[0]
                 vert.y = self.position[1] + vector[1]
                 vert.z = self.position[2] + vector[2]
 
             if rot[2] != 0:
                 # z axis
-                #length = dist([vert.x, vert.y], [self.position[0], self.position[1]])
+                # z axis rotations will only affect the x and y axis components of the vector
+                # distance of the vector only in the x and y axis
                 length = dist([vector[0], vector[1]], [0, 0])
                 if vert.x >= self.position[0] and vert.y >= self.position[1]:
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
@@ -190,6 +224,7 @@ class Mesh(Object):
                     vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[2] - rot[2]))
                     vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
 
+                # new vertice position will be the result of the object position and the new vector
                 vert.x = self.position[0] + vector[0]
                 vert.y = self.position[1] + vector[1]
                 vert.z = self.position[2] + vector[2]
@@ -202,6 +237,7 @@ class Mesh(Object):
             if vertice in edge.get_verts():
                 edges.append(edge)
         return edges
+    # returns all tris connected to a vertice
     def trisFrom(self, vertice):
         tris = []
         for tri in self.tris:
@@ -272,8 +308,8 @@ class Camera(Object):
     def project(self, objects):
         for ob in objects:
             if isinstance(ob, Mesh):
-                verts = []
-                vertDist = []
+                verts = [] # lists all vertices
+                vertDist = [] # lists distance from camera of each vertice in relation to the above list (for use when ordering)
                 for vert in ob.vertices:
                     screenPos = self.projectPoint([vert.x, vert.y, vert.z])
                     vert.screenPos = [int(screenPos[0]), int(screenPos[1])]
@@ -283,37 +319,8 @@ class Camera(Object):
                     face.calculateCenter()
                     face.calculateNormals()
 
-                """
-                tris = [tri for tri in ob.tris]
-                dists = [dist(tri.center, self.position) for tri in ob.tris]
-                newTris = []
-                while len(tris) > 0:
-                    index = dists.index(max(dists))
-                    selectedTri = tris[index]
-                    newTris.append(selectedTri)
-                    tris.pop(index)
-                    dists.pop(index)
-                ob.tris = newTris
-                """
-
-                """
-                faces = []
-                while len(verts) > 0:
-                    vert = verts[vertDist.index(max(vertDist))]
-                    connectedTris = ob.trisFrom(vert)
-                    triDists = [dist(tri.center, self.position) for tri in connectedTris]
-                    print(triDists)
-                    while len(connectedTris) > 0:
-                        index = triDists.index(max(triDists))
-                        if connectedTris[index] not in faces:
-                            faces.append(connectedTris[index])
-                        connectedTris.pop(index)
-                        triDists.pop(index)
-                    verts.pop(vertDist.index(max(vertDist)))
-                    vertDist.pop(vertDist.index(max(vertDist)))
-                ob.tris = faces
-                """
-
+                #order the faces in order of furthest to the camera to closest to the camera
+                #this is in order to make sure faces closer to the camera are drawn in front of faces further away
                 remainingVerts = verts.copy()
                 remainingVertDists = vertDist.copy()
                 tris = []
@@ -348,44 +355,6 @@ class Camera(Object):
                     remainingVertDists.remove(max(remainingVertDists))
                 ob.tris = tris
 
-                """
-                tris = []
-                while len(verts) > 0:
-                    #vertice furthest to the camera
-                    vert = verts[vertDist.index(max(vertDist))]
-                    #all faces that connect to that vertice
-                    connectedTris = ob.trisFrom(vert)
-                    #print(f\"""connectedtris = {connectedTris}\""")
-                    maxTri = None #tri corresponding to furthest point
-                    #organize all connected tris in order of greatest to least distance from camera
-                    while len(connectedTris) > 0:
-                        #print(f\"""len = {len(connectedTris)}\""")
-                        #print(f\"""connectedTris = {connectedTris}\""")
-                        #print(f\"""tris = {tris}\""")
-                        maxVal = 0  # furthest distance from camera
-                        #iterate through all the tris
-                        for tri in connectedTris:
-                            #print(f\"""currenttri = {tri}\""")
-                            #vertices corresponding to tri
-                            triVerts = tri.vertices.copy()
-                            #print(f\"""triVerts = {triVerts}\""")
-                            #print(f\"""vert = {vert}\""")
-                            #remove the origin vertice from the list
-                            #triVerts.remove(vert)
-                            triVerts.pop(triVerts.index(vert))
-                            triVertDists = [dist(triVert.get_pos(), self.position) for triVert in triVerts]
-                            triMax = max(triVertDists)
-                            if triMax > maxVal and tri in connectedTris:
-                                maxVal = triMax
-                                maxTri = tri
-                        #print(f\"""maxTri = {maxTri}\""")
-                        tris.append(maxTri)
-                        connectedTris.remove(maxTri)
-                        #connectedTris.pop(connectedTris.index(maxTri))
-                    verts.pop(vertDist.index(max(vertDist)))
-                    vertDist.pop(vertDist.index(max(vertDist)))
-                ob.tris = tris
-                """
     def selectObject(self, objects, mousePos):
         for ob in objects:
             if isinstance(ob, Mesh):
