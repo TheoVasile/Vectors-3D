@@ -257,7 +257,7 @@ class Mesh(Object):
 
 #the camera projects the scene onto the screen
 class Camera(Object):
-    def __init__(self, position, rotation, scale, width, height, fov, projectionType = "perspective"):
+    def __init__(self, position, rotation, scale, width, height, fov, projectionType = "perspective", displayType = "solid"):
         super().__init__(position, rotation, scale)
         self.width = width
         self.height = height
@@ -267,6 +267,7 @@ class Camera(Object):
         self.xPlane = [0, 0, 1] #normal of the x-plane of the screen (3d points projected onto this plane create corresponding x-positions on a 2d screen)
         self.yPlane = [0, 1, 0] #normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
         self.screen = pg.display.set_mode((self.width, self.height))
+        self.displayType = displayType
     def projectPoint(self, point):
         if self.projectionType == "perspective":
             # convert vertice into vector away from camera
@@ -328,25 +329,25 @@ class Camera(Object):
                 remainingVertDists = vertDist.copy()
                 tris = []
                 while len(remainingVerts) > 0:
-                    print(f"""remaining verts = {remainingVerts}""")
+                    #print(f"""remaining verts = {remainingVerts}""")
                     closestVert = remainingVerts[remainingVertDists.index(max(remainingVertDists))]
                     connectedTris = ob.trisFrom(closestVert)
                     connectedTrisDists = []
                     for tri in connectedTris.copy():
                         if tri in tris:
-                            print('--')
-                            print(tri)
-                            print(connectedTris)
+                            #print('--')
+                            #print(tri)
+                            #print(connectedTris)
                             connectedTris.remove(tri)
-                            print(connectedTris)
-                            print('--')
+                            #print(connectedTris)
+                            #print('--')
                         else:
-                            print("yuh")
+                            #print("yuh")
                             connectedTrisDists.append([vertDist[verts.index(tri.vertices[i])] for i in range(0, 3) if tri.vertices[i] != closestVert])
-                    print(f"""connected tris = {connectedTris}""")
-                    print(f"""connected dist = {connectedTrisDists}""")
-                    print(f"""tris = {tris}""")
-                    print(connectedTrisDists)
+                    #print(f"""connected tris = {connectedTris}""")
+                    #print(f"""connected dist = {connectedTrisDists}""")
+                    #print(f"""tris = {tris}""")
+                    #print(connectedTrisDists)
                     while len(connectedTris) > 0:
                         maxDist = max(list(itertools.chain.from_iterable(connectedTrisDists)))
                         maxIndex = int(list(itertools.chain.from_iterable(connectedTrisDists)).index(maxDist) / 2)
@@ -359,6 +360,11 @@ class Camera(Object):
                 ob.tris = tris
 
     def display(self, objects):
+        if self.displayType == "solid":
+            self.solidDisplay(objects)
+        elif self.displayType == "wireframe":
+            self.wireframeDisplay(objects)
+    def solidDisplay(self, objects):
         for ob in objects:
             if isinstance(ob, Mesh):
                 for tri in ob.tris:
@@ -383,6 +389,15 @@ class Camera(Object):
                         for edge in tri.edges:
                             pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
 
+            pivotPoint = self.projectPoint(ob.position)
+            pg.draw.circle(self.screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
+    def wireframeDisplay(self, objects):
+        for ob in objects:
+            if isinstance(ob, Mesh):
+                for edge in ob.edges:
+                    pg.draw.line(self.screen, (255, 255, 255), edge.vert1.screenPos, edge.vert2.screenPos, 1)
+                for vert in ob.vertices:
+                    pg.draw.circle(self.screen, (255, 255, 255), vert.screenPos, 2, 0)
             pivotPoint = self.projectPoint(ob.position)
             pg.draw.circle(self.screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
 

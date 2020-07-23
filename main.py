@@ -53,6 +53,11 @@ while running:
                     rotate = False
                 elif rotate == False:
                     rotate = True
+            elif event.key == pg.K_z:
+                if selectedCamera.displayType == "solid":
+                    selectedCamera.displayType = "wireframe"
+                elif selectedCamera.displayType == "wireframe":
+                    selectedCamera.displayType = "solid"
         elif event.type == pg.MOUSEBUTTONDOWN:
             if event.button == pg.BUTTON_LEFT:
                 # clicking while moving or rotating applies the action
