@@ -387,4 +387,30 @@ class Camera(Object):
                 ob.tris = tris
                 """
     def selectObject(self, objects, mousePos):
-        return objects[0]
+        for ob in objects:
+            if isinstance(ob, Mesh):
+                for tri in ob.tris:
+                    cursorInTri = True
+                    for index in [0, 1, 2]:
+                        #vector connecting one of the verts to the selected vert
+                        vertVector1 = [tri.vertices[index - 1].screenPos[0] - tri.vertices[index].screenPos[0],
+                                       tri.vertices[index - 1].screenPos[1] - tri.vertices[index].screenPos[1]]
+                        #vector connecting the other vert to the selected vert
+                        vertVector2 = [tri.vertices[index - 2].screenPos[0] - tri.vertices[index].screenPos[0],
+                                       tri.vertices[index - 2].screenPos[1] - tri.vertices[index].screenPos[1]]
+                        #find the angle between the vectors
+                        vertAngle = math.degrees(math.acos(dotProduct(vertVector1, vertVector2) / (dist(vertVector1, [0, 0, 0]) * dist(vertVector2, [0, 0, 0]))))
+
+                        #vector connecting the cursor position to the selected vert
+                        mouseVector = [mousePos[0] - tri.vertices[index].screenPos[0],
+                                       mousePos[1] - tri.vertices[index].screenPos[1]]
+
+                        #find the angle between the mouse and one of the vertice vectors
+                        mouseAngle = math.degrees(math.acos(dotProduct(vertVector1, mouseVector) / (dist(vertVector1, [0, 0, 0]) * dist(mouseVector, [0, 0, 0]))))
+
+                        #if the angle between the mouse and the selected vertice is greater than the vertices its connected to, it will not be inside the face
+                        if mouseAngle > vertAngle:
+                            cursorInTri = False
+                            break
+                    if cursorInTri:
+                        return ob
