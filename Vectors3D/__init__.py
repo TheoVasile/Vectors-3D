@@ -439,17 +439,17 @@ def createSphere(segments, rings):
     for ring in range(0, rings):
         z = 2 / rings * (ring - rings/2)
         r = math.sqrt(1 - z ** 2)
-        for segment in range(0, segments):
+        for segment in range(0, segments + 1):
             dAngle = 360 / segments
             x = r * math.cos(math.radians(segment * dAngle))
             y = r * math.sin(math.radians(segment * dAngle))
             vertices.append(Vertice(x, y, z))
-            if len(vertices) > 1:
+            if len(vertices) > 2:
                 edges.append(Edge(vertices[-1], vertices[-2]))
-            if len(vertices) > segments:
-                edges.append(Edge(vertices[-1], vertices[-segments - 1]))
+            if len(vertices) - 1 > segments:
+                edges.append(Edge(vertices[-1], vertices[-segments - 2]))
             if ring > 1:
-                faces.append(Face([vertices[-1], vertices[-2], vertices[-segments - 1], vertices[-segments]]))
+                faces.append(Face([vertices[-1], vertices[-2], vertices[-segments - 3], vertices[-segments - 2]]))
                 print(vertices[-1].get_pos())
                 print(vertices[-2].get_pos())
                 print(vertices[-segments - 1].get_pos())
