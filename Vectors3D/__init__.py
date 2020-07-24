@@ -90,7 +90,10 @@ class Face:
                     if edge.vert2 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]] and edge.vert1 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]]:
                         triEdges.append(edge)
                 self.tris.append(Face([self.vertices[0], self.vertices[i], self.vertices[i + 1]], triEdges))
+        print(len(self.vertices))
+        print(self.isTri)
         self.calculateNormals() # determine the normal vectors
+        print(self.normal)
 
     # calculates the middle of the face, as well as its subfaces
     def calculateCenter(self):
@@ -369,8 +372,7 @@ class Camera(Object):
             if isinstance(ob, Mesh):
                 for tri in ob.tris:
                     # displays a face
-                    angle = math.degrees(math.acos(dotProduct(tri.normal, self.cameraVector) / (
-                                dist(tri.normal, [0, 0, 0]) * dist(self.cameraVector, [0, 0, 0]))))
+                    angle = math.degrees(math.acos(dotProduct(tri.normal, self.cameraVector) / (dist(tri.normal, [0, 0, 0]) * dist(self.cameraVector, [0, 0, 0]))))
                     angle = math.degrees(math.asin(math.sin(math.radians(angle))))
                     # the closer the angle between the normal and the direction of the camera is to 90 degrees, the darker the color
                     # the closer the angle between the normal and the direction of the camera is to 0 degrees, the lighter the color
@@ -433,6 +435,7 @@ class Camera(Object):
 def createSphere(segments, rings):
     vertices = []
     edges = []
+    faces = []
     for ring in range(0, rings):
         z = 2 / rings * (ring - rings/2)
         r = math.sqrt(1 - z ** 2)
@@ -445,4 +448,9 @@ def createSphere(segments, rings):
                 edges.append(Edge(vertices[-1], vertices[-2]))
             if len(vertices) > segments:
                 edges.append(Edge(vertices[-1], vertices[-segments - 1]))
-    return Mesh((0, 0, 0), [0, 0, 0], [1, 1, 1], vertices, edges, [])
+            if ring > 1:
+                faces.append(Face([vertices[-1], vertices[-2], vertices[-segments - 1], vertices[-segments]]))
+                print(vertices[-1].get_pos())
+                print(vertices[-2].get_pos())
+                print(vertices[-segments - 1].get_pos())
+    return Mesh((0, 0, 0), [0, 0, 0], [1, 1, 1], vertices, edges, faces)
