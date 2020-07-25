@@ -419,7 +419,10 @@ class Camera(Object):
                         edgeColor = (255, 200, 0)
                     if ob.mode == "edit":
                         for vert in tri.vertices:
-                            pg.draw.circle(self.screen, edgeColor, vert.screenPos, 2, 0)
+                            if vert in ob.selectedVertices:
+                                pg.draw.circle(self.screen, (50, 50, 255), vert.screenPos, 2, 0)
+                            elif vert not in ob.selectedVertices:
+                                pg.draw.circle(self.screen, (255, 255, 255), vert.screenPos, 2, 0)
                     # edges should only be displayed if the object is selected or in edit mode
                     if ob.mode == "edit" or (ob.mode == "object" and ob.selected):
                         for edge in tri.edges:
