@@ -1,5 +1,6 @@
 from Vectors3D import *
 from Vectors3D.mesh import Mesh
+from Vectors3D.object import Object
 import pygame as pg
 import math
 import itertools

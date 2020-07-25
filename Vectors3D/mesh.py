@@ -1,4 +1,5 @@
 from Vectors3D import *
+from Vectors3D.object import Object
 
 #mesh is an object that contains vertices, edges, and faces
 class Mesh(Object):
