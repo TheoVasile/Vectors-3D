@@ -66,12 +66,20 @@ while running:
                     rotate = False
                 # otherwise it detects which object the cursor lands on and makes it the selected object
                 elif not move and not rotate:
-                    if selectedObject:
-                        selectedObject.selected = False
+                    try:
+                        if selectedObject.mode == "edit":
+                            selectedVertice = selectedObject.selectVert(pg.mouse.get_pos())
+                            if selectedVertice:
+                                selectedObject.selectedVertices = [selectedVertice]
+                        else:
+                            raise Exception
+                    except:
+                        if selectedObject:
+                            selectedObject.selected = False
 
-                    selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
-                    if selectedObject:
-                        selectedObject.selected = True
+                        selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
+                        if selectedObject:
+                            selectedObject.selected = True
 
     screen.fill((0, 0, 0))
 

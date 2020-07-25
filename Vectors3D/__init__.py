@@ -269,6 +269,13 @@ class Mesh(Object):
                     vert.z = self.position[2] + vector[2]
 
         self.rotation = rot
+
+    def selectVert(self, mousePos):
+        for vert in self.vertices:
+            distance = dist(vert.screenPos, mousePos)
+            if distance <= 5:
+                return vert
+
     #returns all edges connected to a vertice
     def edgesFrom(self, vertice):
         edges = []
