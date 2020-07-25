@@ -25,6 +25,7 @@ selectedCamera = camera
 
 rotate = False # indicates wether or not the selected object is in the process of being rotated
 move = False # indicates wether or not the selected object is in the process of being moved
+multiSelect = False
 
 oldPos = pg.mouse.get_pos()
 
@@ -71,11 +72,14 @@ while running:
                         if selectedObject.mode == "edit":
                             selectedVertice = selectedObject.selectVert(pg.mouse.get_pos())
                             if selectedVertice:
-                                selectedObject.selectedVertices = [selectedVertice]
+                                if multiSelect and selectedVertice not in selectedObject.selectedVertices:
+                                    selectedObject.selectedVertices.append(selectedVertice)
+                                else:
+                                    selectedObject.selectedVertices = [selectedVertice]
                         else:
                             raise Exception
                     except:
-                        if selectedObject:
+                        if selectedObject and not multiSelect:
                             selectedObject.selected = False
 
                         selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
@@ -90,6 +94,11 @@ while running:
         selectedCamera.fov += 1
     elif key[pg.K_DOWN]:
         selectedCamera.fov -= 1
+
+    if key[pg.K_LSHIFT]:
+        multiSelect = True
+    else:
+        multiSelect = False
 
     #alter the cameras position
     if key[pg.K_w]:
