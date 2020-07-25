@@ -166,7 +166,7 @@ class Mesh(Object):
         self.vertices = vertices
         self.edges = edges
         self.faces = faces
-        self.selectedVertices = []
+        self.selectedVertices = [self.vertices[40]]
         self.selectedEdges = []
         self.selectedFaces = []
         #contains all subfaces, made up only of 3 vertices
@@ -179,12 +179,18 @@ class Mesh(Object):
     def set_pos(self, pos):
         # find the vector connecting the initial position and the final position
         vector = [pos[i] - self.position[i] for i in range(0, 3)]
-        # add that vector to all the vertices so that they all move along with the object
-        for vert in self.vertices:
-            vert.x += vector[0]
-            vert.y += vector[1]
-            vert.z += vector[2]
-        self.position = pos
+        if self.mode == "object":
+            # add that vector to all the vertices so that they all move along with the object
+            for vert in self.vertices:
+                vert.x += vector[0]
+                vert.y += vector[1]
+                vert.z += vector[2]
+            self.position = pos
+        elif self.mode == "edit":
+            for vert in self.selectedVertices:
+                vert.x += vector[0]
+                vert.y += vector[1]
+                vert.z += vector[2]
     def set_rot(self, rot):
         for vert in self.vertices:
             # find the vector connecting the object position (which will function as a pivot point) to the vertice position
