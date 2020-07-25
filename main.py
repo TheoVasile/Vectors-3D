@@ -64,7 +64,8 @@ while running:
                 if move or rotate:
                     move = False
                     rotate = False
-                # otherwise it detects which object the cursor lands on and makes it the selected object
+
+                # otherwise it detects what the cursor lands on
                 elif not move and not rotate:
                     try:
                         if selectedObject.mode == "edit":
