@@ -142,7 +142,7 @@ def createSphere(segments, rings):
     edges = []
     faces = []
     for ring in range(0, rings + 1):
-        z = 2 / rings * (ring - rings/2)
+        z = math.cos(math.radians(ring * (180 / rings)))#2 / rings * (ring - rings/2)
         r = math.sqrt(1 - z ** 2)
         for segment in range(0, segments + 1):
             dAngle = 360 / segments
