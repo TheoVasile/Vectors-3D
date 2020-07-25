@@ -72,8 +72,11 @@ while running:
                         if selectedObject.mode == "edit":
                             selectedVertice = selectedObject.selectVert(pg.mouse.get_pos())
                             if selectedVertice:
-                                if multiSelect and selectedVertice not in selectedObject.selectedVertices:
-                                    selectedObject.selectedVertices.append(selectedVertice)
+                                if multiSelect:
+                                    if selectedVertice not in selectedObject.selectedVertices:
+                                        selectedObject.selectedVertices.append(selectedVertice)
+                                    else:
+                                        selectedObject.selectedVertices.remove(selectedVertice)
                                 else:
                                     selectedObject.selectedVertices = [selectedVertice]
                         else:
