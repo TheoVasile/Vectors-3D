@@ -37,6 +37,22 @@ def average(vectors):
         average[i] /= len(vectors[0])
     return average
 
+def factorVector(vector):
+    newVector = []
+    maxVal = max(vector)
+    if abs(min(vector)) > maxVal:
+        maxVal = abs(min(vector))
+
+    if vector[0] < 0:
+        maxVal *= -1
+
+    if maxVal == 0:
+        return vector
+    else:
+        for i in vector:
+            newVector.append(i / maxVal)
+        return newVector
+
 # a point in 3D space
 class Vertice:
     def __init__(self, x, y, z):
@@ -66,6 +82,7 @@ class Edge:
 class Face:
     def __init__(self, vertices, edges=[]):
         self.vertices = vertices # lists all the points that the face connects to, as Vertices
+
         # unless otherwise given, the edges will be created by joining Vertices in the order they were inputed
         if len(edges) == 0:
             self.edges = [Edge(vertices[i], vertices[i-1]) for i in range(0, len(vertices))]
@@ -90,6 +107,12 @@ class Face:
                     if edge.vert2 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]] and edge.vert1 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]]:
                         triEdges.append(edge)
                 self.tris.append(Face([self.vertices[0], self.vertices[i], self.vertices[i + 1]], triEdges))
+        elif len(self.vertices) < 3:
+            print("yeet")
+            del self
+        elif len(self.vertices) == 3 and self.vertices[0].get_pos() == self.vertices[1].get_pos() and self.vertices[0].get_pos() == self.vertices[2].get_pos() and self.vertices[2].get_pos() == self.vertices[1].get_pos():
+            print("yeet")
+            del self
         print(len(self.vertices))
         print(self.isTri)
         self.calculateNormals() # determine the normal vectors
@@ -162,77 +185,78 @@ class Mesh(Object):
         for vert in self.vertices:
             # find the vector connecting the object position (which will function as a pivot point) to the vertice position
             vector = [vert.x - self.position[0], vert.y - self.position[1], vert.z - self.position[2]]
-            if rot[0] != 0:
-                # x axis
-                # x axis rotations will only affect the y and z axis components of the vector
-                # distance of the vector only in the y and z axis
-                length = dist([vector[1], vector[2]], [0, 0])
+            if dist(vector, [0, 0, 0]) != 0:
+                if rot[0] != 0:
+                    # x axis
+                    # x axis rotations will only affect the y and z axis components of the vector
+                    # distance of the vector only in the y and z axis
+                    length = dist([vector[1], vector[2]], [0, 0])
 
-                # adjust the vector to be offset by the difference between the initial rotation and final rotation in the x axis
-                # different vertice orientations must be accounted for differently for consistent results
-                if vert.y >= self.position[1] and vert.z >= self.position[2]:
-                    vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - self.rotation[0] + rot[0]))
-                    vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
-                elif vert.y < self.position[1] and vert.z >= self.position[2]:
-                    vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - self.rotation[0] + rot[0]))
-                    vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[0] - rot[0]))
-                elif vert.y < self.position[1] and vert.z < self.position[2]:
-                    vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + self.rotation[0] - rot[0]))
-                    vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[0] - rot[0]))
-                elif vert.y >= self.position[1] and vert.z < self.position[2]:
-                    vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + self.rotation[0] - rot[0]))
-                    vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
+                    # adjust the vector to be offset by the difference between the initial rotation and final rotation in the x axis
+                    # different vertice orientations must be accounted for differently for consistent results
+                    if vert.y >= self.position[1] and vert.z >= self.position[2]:
+                        vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - self.rotation[0] + rot[0]))
+                        vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
+                    elif vert.y < self.position[1] and vert.z >= self.position[2]:
+                        vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) - self.rotation[0] + rot[0]))
+                        vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[0] - rot[0]))
+                    elif vert.y < self.position[1] and vert.z < self.position[2]:
+                        vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + self.rotation[0] - rot[0]))
+                        vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[0] - rot[0]))
+                    elif vert.y >= self.position[1] and vert.z < self.position[2]:
+                        vector[1] = length * math.cos(math.radians(math.degrees(math.acos(vector[1] / length)) + self.rotation[0] - rot[0]))
+                        vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[0] + rot[0]))
 
-                # new vertice position will be the result of the object position and the new vector
-                vert.x = self.position[0] + vector[0]
-                vert.y = self.position[1] + vector[1]
-                vert.z = self.position[2] + vector[2]
+                    # new vertice position will be the result of the object position and the new vector
+                    vert.x = self.position[0] + vector[0]
+                    vert.y = self.position[1] + vector[1]
+                    vert.z = self.position[2] + vector[2]
 
-            if rot[1] != 0:
-                # y axis
-                # y axis rotations will only affect the x and z axis components of the vector
-                # distance of the vector only in the x and z axis
-                length = dist([vector[0], vector[2]], [0, 0])
-                if vert.x >= self.position[0] and vert.z >= self.position[2]:
-                    vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[1] + rot[1]))
-                    vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
-                elif vert.x < self.position[0] and vert.z >= self.position[2]:
-                    vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[1] + rot[1]))
-                    vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[1] - rot[1]))
-                elif vert.x < self.position[0] and vert.z < self.position[2]:
-                    vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[1] - rot[1]))
-                    vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[1] - rot[1]))
-                elif vert.x >= self.position[0] and vert.z < self.position[2]:
-                    vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[1] - rot[1]))
-                    vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
+                if rot[1] != 0:
+                    # y axis
+                    # y axis rotations will only affect the x and z axis components of the vector
+                    # distance of the vector only in the x and z axis
+                    length = dist([vector[0], vector[2]], [0, 0])
+                    if vert.x >= self.position[0] and vert.z >= self.position[2]:
+                        vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[1] + rot[1]))
+                        vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
+                    elif vert.x < self.position[0] and vert.z >= self.position[2]:
+                        vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[1] + rot[1]))
+                        vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[1] - rot[1]))
+                    elif vert.x < self.position[0] and vert.z < self.position[2]:
+                        vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[1] - rot[1]))
+                        vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) + self.rotation[1] - rot[1]))
+                    elif vert.x >= self.position[0] and vert.z < self.position[2]:
+                        vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[1] - rot[1]))
+                        vector[2] = length * math.sin(math.radians(math.degrees(math.asin(vector[2] / length)) - self.rotation[1] + rot[1]))
 
-                # new vertice position will be the result of the object position and the new vector
-                vert.x = self.position[0] + vector[0]
-                vert.y = self.position[1] + vector[1]
-                vert.z = self.position[2] + vector[2]
+                    # new vertice position will be the result of the object position and the new vector
+                    vert.x = self.position[0] + vector[0]
+                    vert.y = self.position[1] + vector[1]
+                    vert.z = self.position[2] + vector[2]
 
-            if rot[2] != 0:
-                # z axis
-                # z axis rotations will only affect the x and y axis components of the vector
-                # distance of the vector only in the x and y axis
-                length = dist([vector[0], vector[1]], [0, 0])
-                if vert.x >= self.position[0] and vert.y >= self.position[1]:
-                    vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
-                    vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
-                elif vert.x < self.position[0] and vert.y >= self.position[1]:
-                    vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
-                    vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) + self.rotation[2] - rot[2]))
-                elif vert.x < self.position[0] and vert.y < self.position[1]:
-                    vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[2] - rot[2]))
-                    vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) + self.rotation[2] - rot[2]))
-                elif vert.x >= self.position[0] and vert.y < self.position[1]:
-                    vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[2] - rot[2]))
-                    vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
+                if rot[2] != 0:
+                    # z axis
+                    # z axis rotations will only affect the x and y axis components of the vector
+                    # distance of the vector only in the x and y axis
+                    length = dist([vector[0], vector[1]], [0, 0])
+                    if vert.x >= self.position[0] and vert.y >= self.position[1]:
+                        vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
+                        vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
+                    elif vert.x < self.position[0] and vert.y >= self.position[1]:
+                        vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) - self.rotation[2] + rot[2]))
+                        vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) + self.rotation[2] - rot[2]))
+                    elif vert.x < self.position[0] and vert.y < self.position[1]:
+                        vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[2] - rot[2]))
+                        vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) + self.rotation[2] - rot[2]))
+                    elif vert.x >= self.position[0] and vert.y < self.position[1]:
+                        vector[0] = length * math.cos(math.radians(math.degrees(math.acos(vector[0] / length)) + self.rotation[2] - rot[2]))
+                        vector[1] = length * math.sin(math.radians(math.degrees(math.asin(vector[1] / length)) - self.rotation[2] + rot[2]))
 
-                # new vertice position will be the result of the object position and the new vector
-                vert.x = self.position[0] + vector[0]
-                vert.y = self.position[1] + vector[1]
-                vert.z = self.position[2] + vector[2]
+                    # new vertice position will be the result of the object position and the new vector
+                    vert.x = self.position[0] + vector[0]
+                    vert.y = self.position[1] + vector[1]
+                    vert.z = self.position[2] + vector[2]
 
         self.rotation = rot
     #returns all edges connected to a vertice
@@ -264,11 +288,11 @@ class Camera(Object):
         super().__init__(position, rotation, scale)
         self.width = width
         self.height = height
-        self.fov = fov #field of vision
+        self.fov = fov # field of vision
         self.projectionType = projectionType
-        self.cameraVector = [1, 0, 0] #direction vector of where the camera is pointing
-        self.xPlane = [0, 0, 1] #normal of the x-plane of the screen (3d points projected onto this plane create corresponding x-positions on a 2d screen)
-        self.yPlane = [0, 1, 0] #normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
+        self.cameraVector = [1, 0, 0] # direction vector of where the camera is pointing
+        self.xPlane = [0, 0, 1] # normal of the x-plane of the screen (3d points projected onto this plane create corresponding x-positions on a 2d screen)
+        self.yPlane = [0, 1, 0] # normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
         self.screen = pg.display.set_mode((self.width, self.height))
         self.displayType = displayType
     def projectPoint(self, point):
@@ -415,18 +439,32 @@ class Camera(Object):
                         #vector connecting the other vert to the selected vert
                         vertVector2 = [tri.vertices[index - 2].screenPos[0] - tri.vertices[index].screenPos[0],
                                        tri.vertices[index - 2].screenPos[1] - tri.vertices[index].screenPos[1]]
-                        #find the angle between the vectors
-                        vertAngle = math.degrees(math.acos(dotProduct(vertVector1, vertVector2) / (dist(vertVector1, [0, 0, 0]) * dist(vertVector2, [0, 0, 0]))))
 
-                        #vector connecting the cursor position to the selected vert
-                        mouseVector = [mousePos[0] - tri.vertices[index].screenPos[0],
-                                       mousePos[1] - tri.vertices[index].screenPos[1]]
+                        if factorVector(vertVector1) != factorVector(vertVector2) and dist(vertVector1, [0, 0, 0]) * dist(vertVector2, [0, 0, 0]) != 0:
+                            print(tri.vertices[0].get_pos(), tri.vertices[0].screenPos)
+                            print(tri.vertices[1].get_pos(), tri.vertices[1].screenPos)
+                            print(tri.vertices[2].get_pos(), tri.vertices[2].screenPos)
+                            print(vertVector2, vertVector1)
+                            #find the angle between the vectors
+                            vertAngle = math.degrees(math.acos(dotProduct(vertVector1, vertVector2) / (dist(vertVector1, [0, 0, 0]) * dist(vertVector2, [0, 0, 0]))))
 
-                        #find the angle between the mouse and one of the vertice vectors
-                        mouseAngle = math.degrees(math.acos(dotProduct(vertVector1, mouseVector) / (dist(vertVector1, [0, 0, 0]) * dist(mouseVector, [0, 0, 0]))))
+                            #vector connecting the cursor position to the selected vert
+                            mouseVector = [mousePos[0] - tri.vertices[index].screenPos[0],
+                                           mousePos[1] - tri.vertices[index].screenPos[1]]
 
-                        #if the angle between the mouse and the selected vertice is greater than the vertices its connected to, it will not be inside the face
-                        if mouseAngle > vertAngle:
+                            if factorVector(mouseVector) != factorVector(vertVector1) and dist(vertVector1, [0, 0, 0]) * dist(mouseVector, [0, 0, 0]) != 0:
+                                print(mouseVector)
+                                #find the angle between the mouse and one of the vertice vectors
+                                mouseAngle = math.degrees(math.acos(dotProduct(vertVector1, mouseVector) / (dist(vertVector1, [0, 0, 0]) * dist(mouseVector, [0, 0, 0]))))
+
+                                #if the angle between the mouse and the selected vertice is greater than the vertices its connected to, it will not be inside the face
+                                if mouseAngle > vertAngle:
+                                     cursorInTri = False
+                                     break
+                            else:
+                                cursorInTri = False
+                                break
+                        else:
                             cursorInTri = False
                             break
                     if cursorInTri:
@@ -448,9 +486,9 @@ def createSphere(segments, rings):
                 edges.append(Edge(vertices[-1], vertices[-2]))
             if len(vertices) - 1 > segments:
                 edges.append(Edge(vertices[-1], vertices[-segments - 2]))
-            if ring > 1:
+            if ring > 1 and segment > 0:
                 faces.append(Face([vertices[-1], vertices[-2], vertices[-segments - 3], vertices[-segments - 2]]))
-                print(vertices[-1].get_pos())
-                print(vertices[-2].get_pos())
-                print(vertices[-segments - 1].get_pos())
+                #print(vertices[-1].get_pos())
+                #print(vertices[-2].get_pos())
+                #print(vertices[-segments - 1].get_pos())
     return Mesh((0, 0, 0), [0, 0, 0], [1, 1, 1], vertices, edges, faces)

@@ -19,7 +19,7 @@ edges = [v3d.Edge(verts[2], verts[3]), v3d.Edge(verts[2], verts[-2]), v3d.Edge(v
 
 camera = v3d.Camera([-25, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30) # camera displays scene
 
-objects = [v3d.createSphere(16, 12), camera] # list of all objects in the scene
+objects = [v3d.createSphere(32, 12), camera] # list of all objects in the scene
 selectedObject = objects[0]
 selectedCamera = camera
 
