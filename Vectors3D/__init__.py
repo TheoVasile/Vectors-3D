@@ -107,6 +107,7 @@ class Face:
                     if edge.vert2 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]] and edge.vert1 in [self.vertices[0], self.vertices[i], self.vertices[i + 1]]:
                         triEdges.append(edge)
                 self.tris.append(Face([self.vertices[0], self.vertices[i], self.vertices[i + 1]], triEdges))
+        #faces cannot be made from 2 points, they are edges
         elif len(self.vertices) < 3:
             print("yeet")
             del self
@@ -165,6 +166,9 @@ class Mesh(Object):
         self.vertices = vertices
         self.edges = edges
         self.faces = faces
+        self.selectedVertices = []
+        self.selectedEdges = []
+        self.selectedFaces = []
         #contains all subfaces, made up only of 3 vertices
         self.tris = []
         for face in self.faces:
@@ -474,7 +478,7 @@ def createSphere(segments, rings):
     vertices = []
     edges = []
     faces = []
-    for ring in range(0, rings):
+    for ring in range(0, rings + 1):
         z = 2 / rings * (ring - rings/2)
         r = math.sqrt(1 - z ** 2)
         for segment in range(0, segments + 1):
@@ -486,7 +490,7 @@ def createSphere(segments, rings):
                 edges.append(Edge(vertices[-1], vertices[-2]))
             if len(vertices) - 1 > segments:
                 edges.append(Edge(vertices[-1], vertices[-segments - 2]))
-            if ring > 1 and segment > 0:
+            if ring > 1 and ring < rings and segment > 0:
                 faces.append(Face([vertices[-1], vertices[-2], vertices[-segments - 3], vertices[-segments - 2]]))
                 #print(vertices[-1].get_pos())
                 #print(vertices[-2].get_pos())
