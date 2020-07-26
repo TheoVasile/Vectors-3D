@@ -20,12 +20,14 @@ edges = [v3d.Edge(verts[2], verts[3]), v3d.Edge(verts[2], verts[-2]), v3d.Edge(v
 camera = v3d.Camera([-25, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30) # camera displays scene
 
 objects = [v3d.createSphere(32, 12), camera] # list of all objects in the scene
-selectedObject = objects[0]
+selectedObject = None
 selectedCamera = camera
 
 rotate = False # indicates wether or not the selected object is in the process of being rotated
 move = False # indicates wether or not the selected object is in the process of being moved
 multiSelect = False
+selectionType = "single"
+circleSelectRadius = 20
 
 oldPos = pg.mouse.get_pos()
 
@@ -59,6 +61,11 @@ while running:
                     selectedCamera.displayType = "wireframe"
                 elif selectedCamera.displayType == "wireframe":
                     selectedCamera.displayType = "solid"
+            elif event.key == pg.K_c:
+                if selectionType == "circle":
+                    selectionType = "single"
+                else:
+                    selectionType = "circle"
         elif event.type == pg.MOUSEBUTTONDOWN:
             if event.button == pg.BUTTON_LEFT:
                 # clicking while moving or rotating applies the action
@@ -67,10 +74,10 @@ while running:
                     rotate = False
 
                 # otherwise it detects what the cursor lands on
-                elif not move and not rotate:
+                elif not move and not rotate and selectionType == "single":
                     try:
                         if selectedObject.mode == "edit":
-                            selectedVertice = selectedObject.selectVert(pg.mouse.get_pos())
+                            selectedVertice = selectedCamera.selectSingle(selectedObject, pg.mouse.get_pos())
                             if selectedVertice:
                                 if multiSelect:
                                     if selectedVertice not in selectedObject.selectedVertices:
@@ -109,6 +116,29 @@ while running:
     elif key[pg.K_s]:
         selectedCamera.set_pos([selectedCamera.position[0] - 1, selectedCamera.position[1], selectedCamera.position[2]])
 
+    if pg.mouse.get_pressed()[0]:
+        try:
+            if selectedObject.mode == "edit":
+                selectedVertices = selectedCamera.selectCircle(selectedObject, pg.mouse.get_pos(), circleSelectRadius)
+                if len(selectedVertices) > 0:
+                    if multiSelect:
+                        if selectedVertices not in selectedObject.selectedVertices:
+                            selectedObject.selectedVertices += selectedVertices
+                        else:
+                            pass
+                            #selectedObject.selectedVertices.remove(selectedVertice)
+                    else:
+                        selectedObject.selectedVertices = selectedVertices
+            else:
+                raise Exception
+        except:
+            if selectedObject and not multiSelect:
+                selectedObject.selected = False
+
+            selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
+            if selectedObject:
+                selectedObject.selected = True
+
     # move or rotate object if needed
     if selectedObject:
         if move:
@@ -119,6 +149,9 @@ while running:
     # project all the objects onto the camera
     selectedCamera.project(objects)
     selectedCamera.display(objects)
+
+    if selectionType == "circle":
+        pg.draw.circle(screen, (255, 255, 255), pg.mouse.get_pos(), circleSelectRadius, 1)
 
     oldPos = pg.mouse.get_pos()
 

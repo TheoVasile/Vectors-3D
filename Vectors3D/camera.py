@@ -195,3 +195,15 @@ class Camera(Object):
                             break
                     if cursorInTri:
                         return ob
+    def selectSingle(self, object, mousePos, vertices = True, edges = False, faces = False):
+        for vert in object.vertices:
+            distance = dist(vert.screenPos, mousePos)
+            if distance <= 5:
+                return vert
+    def selectCircle(self, object, mousePos, radius, vertices = True, edges = False, faces = False):
+        selectedVerts = []
+        for vert in object.vertices:
+            distance = dist(vert.screenPos, mousePos)
+            if distance <= radius:
+                selectedVerts.append(vert)
+        return selectedVerts
