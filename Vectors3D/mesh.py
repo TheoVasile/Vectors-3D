@@ -8,7 +8,7 @@ class Mesh(Object):
         self.vertices = vertices
         self.edges = edges
         self.faces = faces
-        self.selectedVertices = [self.vertices[40]]
+        self.selectedVertices = []
         self.selectedEdges = []
         self.selectedFaces = []
         #contains all subfaces, made up only of 3 vertices

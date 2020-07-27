@@ -14,13 +14,13 @@ fps = 60
 #create a cube
 verts = [v3d.Vertice(-1, -1, 1), v3d.Vertice(-1, 1, 1), v3d.Vertice(1, 1, 1), v3d.Vertice(1, -1, 1), v3d.Vertice(1, -1, -1), v3d.Vertice(-1, -1, -1), v3d.Vertice(1, 1, -1), v3d.Vertice(-1, 1, -1)]
 edges = [v3d.Edge(verts[2], verts[3]), v3d.Edge(verts[2], verts[-2]), v3d.Edge(verts[2], verts[1]), v3d.Edge(verts[1], verts[-1]), v3d.Edge(verts[-2], verts[-1]), v3d.Edge(verts[-2], verts[4]), v3d.Edge(verts[4], verts[3]), v3d.Edge(verts[4], verts[5]), v3d.Edge(verts[3], verts[0]), v3d.Edge(verts[0], verts[1]), v3d.Edge(verts[0], verts[5]), v3d.Edge(verts[5], verts[-1])]
-#faces = [v3d.Face([verts[0], verts[1], verts[-1], verts[5]]), v3d.Face([verts[1], verts[-1], verts[6], verts[2]]), v3d.Face([verts[2], verts[3], verts[0], verts[1]]), v3d.Face([verts[0], verts[3], verts[4], verts[5]]), v3d.Face([verts[3], verts[2], verts[6], verts[4]]), v3d.Face([verts[5], verts[-1], verts[6], verts[4]])]
-#cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
+faces = [v3d.Face([verts[0], verts[1], verts[-1], verts[5]]), v3d.Face([verts[1], verts[-1], verts[6], verts[2]]), v3d.Face([verts[2], verts[3], verts[0], verts[1]]), v3d.Face([verts[0], verts[3], verts[4], verts[5]]), v3d.Face([verts[3], verts[2], verts[6], verts[4]]), v3d.Face([verts[5], verts[-1], verts[6], verts[4]])]
+cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
 
 camera = v3d.Camera([-25, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30) # camera displays scene
 
-objects = [v3d.createSphere(32, 12), camera] # list of all objects in the scene
-selectedObject = None
+objects = [v3d.createSphere(32, 12), cube, camera] # list of all objects in the scene
+selectedObjects = []
 selectedCamera = camera
 
 rotate = False # indicates wether or not the selected object is in the process of being rotated
@@ -38,20 +38,21 @@ while running:
             running = False
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_TAB:
-                if selectedObject:
-                    # switches the mode of the selected object
-                    if selectedObject.mode == "object":
-                        selectedObject.mode = "edit"
-                    elif selectedObject.mode == "edit":
-                        selectedObject.mode = "object"
+                if len(selectedObjects) > 0:
+                    for selectedObject in selectedObjects:
+                        # switches the mode of the selected object
+                        if selectedObject.mode == "object":
+                            selectedObject.mode = "edit"
+                        elif selectedObject.mode == "edit":
+                            selectedObject.mode = "object"
             # switches wether or not the selected object is in the process of moving
-            elif event.key == pg.K_g and selectedObject:
+            elif event.key == pg.K_g and len(selectedObjects) > 0:
                 if move == True:
                     move = False
                 elif move == False:
                     move = True
             # switches wether or not the selected object is in the process of rotating
-            elif event.key == pg.K_r and selectedObject:
+            elif event.key == pg.K_r and len(selectedObjects) > 0:
                 if rotate == True:
                     rotate = False
                 elif rotate == False:
@@ -75,26 +76,28 @@ while running:
 
                 # otherwise it detects what the cursor lands on
                 elif not move and not rotate and selectionType == "single":
+                    #iterate through each selected object if there are any
                     try:
-                        if selectedObject.mode == "edit":
-                            selectedVertice = selectedCamera.selectSingle(selectedObject, pg.mouse.get_pos())
-                            if selectedVertice:
-                                if multiSelect:
-                                    if selectedVertice not in selectedObject.selectedVertices:
-                                        selectedObject.selectedVertices.append(selectedVertice)
+                        if selectedObjects[0].mode == "edit":
+                            for selectedObject in selectedObjects:
+                                selectedVertice = selectedCamera.selectSingle(selectedObject, pg.mouse.get_pos())
+                                if selectedVertice:
+                                    if multiSelect:
+                                        if selectedVertice not in selectedObject.selectedVertices:
+                                            selectedObject.selectedVertices.append(selectedVertice)
+                                        else:
+                                            selectedObject.selectedVertices.remove(selectedVertice)
                                     else:
-                                        selectedObject.selectedVertices.remove(selectedVertice)
-                                else:
-                                    selectedObject.selectedVertices = [selectedVertice]
+                                        selectedObject.selectedVertices = [selectedVertice]
                         else:
                             raise Exception
                     except:
-                        if selectedObject and not multiSelect:
-                            selectedObject.selected = False
-
+                        if not multiSelect:
+                            for ob in selectedObjects: ob.selected = False
+                            selectedObjects = []
                         selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
-                        if selectedObject:
-                            selectedObject.selected = True
+                        selectedObject.selected = True
+                        selectedObjects.append(selectedObject)
 
     screen.fill((0, 0, 0))
 
@@ -116,31 +119,28 @@ while running:
     elif key[pg.K_s]:
         selectedCamera.set_pos([selectedCamera.position[0] - 1, selectedCamera.position[1], selectedCamera.position[2]])
 
-    if pg.mouse.get_pressed()[0]:
-        try:
-            if selectedObject.mode == "edit":
-                selectedVertices = selectedCamera.selectCircle(selectedObject, pg.mouse.get_pos(), circleSelectRadius)
-                if len(selectedVertices) > 0:
-                    if multiSelect:
-                        if selectedVertices not in selectedObject.selectedVertices:
-                            selectedObject.selectedVertices += selectedVertices
+    if pg.mouse.get_pressed()[0] and not rotate and not move:
+        if len(selectedObjects) > 0:
+            for selectedObject in selectedObjects:
+                if selectedObject.mode == "edit":
+                    selectedVertices = selectedCamera.selectCircle(selectedObject, pg.mouse.get_pos(), circleSelectRadius)
+                    if len(selectedVertices) > 0:
+                        if multiSelect:
+                            if selectedVertices not in selectedObject.selectedVertices:
+                                selectedObject.selectedVertices += selectedVertices
+                            else:
+                                pass
+                                #selectedObject.selectedVertices.remove(selectedVertice)
                         else:
-                            pass
-                            #selectedObject.selectedVertices.remove(selectedVertice)
-                    else:
-                        selectedObject.selectedVertices = selectedVertices
-            else:
-                raise Exception
-        except:
-            if selectedObject and not multiSelect:
-                selectedObject.selected = False
-
+                            selectedObject.selectedVertices = selectedVertices
+        else:
             selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
             if selectedObject:
                 selectedObject.selected = True
+                selectedObjects.append(selectedObject)
 
     # move or rotate object if needed
-    if selectedObject:
+    for selectedObject in selectedObjects:
         if move:
             selectedObject.set_pos([selectedObject.position[0], selectedObject.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, selectedObject.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
         if rotate:
