@@ -67,6 +67,13 @@ while running:
                     selectionType = "single"
                 else:
                     selectionType = "circle"
+            elif event.key == pg.K_a:
+                if len(selectedObjects) == 0:
+                    selectedObjects = objects.copy()
+                    for ob in objects: ob.selected = True
+                else:
+                    for ob in selectedObjects: ob.selected = False
+                    selectedObjects = []
         elif event.type == pg.MOUSEBUTTONDOWN:
             if event.button == pg.BUTTON_LEFT:
                 # clicking while moving or rotating applies the action
