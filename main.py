@@ -103,8 +103,9 @@ while running:
                             for ob in selectedObjects: ob.selected = False
                             selectedObjects = []
                         selectedObject = selectedCamera.selectObject(objects, pg.mouse.get_pos())
-                        selectedObject.selected = True
-                        selectedObjects.append(selectedObject)
+                        if selectedObject:
+                            selectedObject.selected = True
+                            selectedObjects.append(selectedObject)
 
     screen.fill((0, 0, 0))
 
