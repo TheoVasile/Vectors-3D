@@ -18,6 +18,25 @@ class Camera(Object):
         self.yPlane = [0, 1, 0] # normal of the y-plane of the screen (3d points projected onto this plane create corresponding y-positions on a 2d screen)
         self.screen = pg.display.set_mode((self.width, self.height))
         self.displayType = displayType
+    def set_rot(self, rotation):
+        if rotation[0] != 0:
+            self.xPlane[1] = dist([self.xPlane[1], self.xPlane[2]], [0, 0]) * math.cos(math.radians(rotation[0]))
+            self.xPlane[2] += dist([self.xPlane[1], self.xPlane[2]], [0, 0]) * math.sin(math.radians(rotation[0]))
+            self.yPlane[1] += dist([self.yPlane[1], self.yPlane[2]], [0, 0]) * math.cos(math.radians(rotation[0]))
+            self.yPlane[2] = dist([self.yPlane[1], self.yPlane[2]], [0, 0]) * math.sin(math.radians(rotation[0]))
+            self.rotation[0] = rotation[0]
+        if rotation[1] != 0:
+            self.xPlane[0] = dist([self.xPlane[0], self.xPlane[2]], [0, 0]) * math.cos(math.radians(rotation[1]))
+            self.xPlane[2] += dist([self.xPlane[0], self.xPlane[2]], [0, 0]) * math.sin(math.radians(rotation[1]))
+            self.yPlane[0] = dist([self.yPlane[0], self.yPlane[2]], [0, 0]) * math.cos(math.radians(rotation[1]))
+            self.yPlane[2] = dist([self.yPlane[0], self.yPlane[2]], [0, 0]) * math.sin(math.radians(rotation[1]))
+            self.rotation[1] = rotation[1]
+        if rotation[2] != 0:
+            self.xPlane[0] = dist([self.xPlane[0], self.xPlane[1]], [0, 0]) * math.cos(math.radians(rotation[2]))
+            self.xPlane[1] = dist([self.xPlane[0], self.xPlane[1]], [0, 0]) * math.sin(math.radians(rotation[2]))
+            self.yPlane[0] = dist([self.yPlane[0], self.yPlane[1]], [0, 0]) * math.cos(math.radians(rotation[2]))
+            self.yPlane[1] += dist([self.yPlane[0], self.yPlane[1]], [0, 0]) * math.sin(math.radians(rotation[2]))
+            self.rotation[2] = rotation[2]
     def projectPoint(self, point):
         if self.projectionType == "perspective":
             # convert vertice into vector away from camera

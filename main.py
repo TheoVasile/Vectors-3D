@@ -19,7 +19,7 @@ cube = v3d.Mesh([0, 0, 0], [0, 0, 0], [1, 1, 1], verts, edges, faces)
 
 camera = v3d.Camera([-25, 0, 0], [0, 0, 0], [1, 1, 1], w, h, 30) # camera displays scene
 
-objects = [v3d.createSphere(32, 12), cube, camera] # list of all objects in the scene
+objects = [v3d.createSphere(32, 16), cube, camera] # list of all objects in the scene
 selectedObjects = []
 selectedCamera = camera
 
@@ -152,7 +152,7 @@ while running:
         if move:
             selectedObject.set_pos([selectedObject.position[0], selectedObject.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, selectedObject.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
         if rotate:
-            selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]), selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])])
+            selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1])/1, selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])/1])
 
     # project all the objects onto the camera
     selectedCamera.project(objects)
