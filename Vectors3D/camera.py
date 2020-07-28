@@ -134,6 +134,8 @@ class Camera(Object):
         elif self.displayType == "wireframe":
             self.wireframeDisplay(objects)
     def solidDisplay(self, objects):
+        displayedEdges = []
+        displayedVerts = []
         for ob in objects:
             if isinstance(ob, Mesh):
                 for tri in ob.tris:
@@ -151,14 +153,18 @@ class Camera(Object):
                         edgeColor = (255, 200, 0)
                     if ob.mode == "edit":
                         for vert in tri.vertices:
-                            if vert in ob.selectedVertices:
-                                pg.draw.circle(self.screen, (50, 50, 255), vert.screenPos, 2, 0)
-                            elif vert not in ob.selectedVertices:
-                                pg.draw.circle(self.screen, (255, 255, 255), vert.screenPos, 2, 0)
+                            if vert not in displayedVerts:
+                                if vert in ob.selectedVertices:
+                                    pg.draw.circle(self.screen, (50, 50, 255), vert.screenPos, 2, 0)
+                                elif vert not in ob.selectedVertices:
+                                    pg.draw.circle(self.screen, (255, 255, 255), vert.screenPos, 2, 0)
+                                displayedVerts.append(vert)
                     # edges should only be displayed if the object is selected or in edit mode
                     if ob.mode == "edit" or (ob.mode == "object" and ob.selected):
                         for edge in tri.edges:
-                            pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
+                            if edge not in displayedEdges:
+                                pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
+                                displayedEdges.append(edge)
 
             pivotPoint = self.projectPoint(ob.position)
             pg.draw.circle(self.screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
