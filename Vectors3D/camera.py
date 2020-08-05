@@ -136,35 +136,94 @@ class Camera(Object):
     def solidDisplay(self, objects):
         displayedEdges = []
         displayedVerts = []
+        allTris = []
+        allVerts = []
+        vertDist = []
+
         for ob in objects:
             if isinstance(ob, Mesh):
-                for tri in ob.tris:
-                    # displays a face
-                    angle = math.degrees(math.acos(dotProduct(tri.normal, self.cameraVector) / (dist(tri.normal, [0, 0, 0]) * dist(self.cameraVector, [0, 0, 0]))))
-                    angle = math.degrees(math.asin(math.sin(math.radians(angle))))
-                    # the closer the angle between the normal and the direction of the camera is to 90 degrees, the darker the color
-                    # the closer the angle between the normal and the direction of the camera is to 0 degrees, the lighter the color
-                    color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)),
-                             int(255 * ((90 - angle) / 90))]
-                    pg.draw.polygon(self.screen, color, [vert.screenPos for vert in tri.vertices], 0)
-                    # selected objects have yellow edges
-                    edgeColor = (255, 255, 255)
-                    if ob.selected:
-                        edgeColor = (255, 200, 0)
-                    if ob.mode == "edit":
-                        for vert in tri.vertices:
-                            if vert not in displayedVerts:
-                                if vert in ob.selectedVertices:
-                                    pg.draw.circle(self.screen, (50, 50, 255), vert.screenPos, 2, 0)
-                                elif vert not in ob.selectedVertices:
-                                    pg.draw.circle(self.screen, (255, 255, 255), vert.screenPos, 2, 0)
-                                displayedVerts.append(vert)
-                    # edges should only be displayed if the object is selected or in edit mode
-                    if ob.mode == "edit" or (ob.mode == "object" and ob.selected):
-                        for edge in tri.edges:
-                            if edge not in displayedEdges:
-                                pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
-                                displayedEdges.append(edge)
+                allTris += ob.tris
+                allVerts += ob.vertices
+                vertDist.append(dist(allVerts[-1].get_pos(), [0, 0, 0]))
+
+        dists = [dist(tri.center, self.position) for tri in allTris]
+        newTris = []
+        while len(allTris) > 0:
+            index = dists.index(max(dists))
+            selectedTri = allTris[index]
+            newTris.append(selectedTri)
+            allTris.pop(index)
+            dists.pop(index)
+        allTris = newTris
+
+        """
+        # order the faces in order of furthest to the camera to closest to the camera
+        # this is in order to make sure faces closer to the camera are drawn in front of faces further away
+        remainingVerts = allTris.copy()
+        remainingVertDists = vertDist.copy()
+        tris = []
+        while len(remainingVerts) > 0:
+            # print(f\"""remaining verts = {remainingVerts}\""")
+            closestVert = remainingVerts[remainingVertDists.index(max(remainingVertDists))]
+            connectedTris = ob.trisFrom(closestVert)
+            connectedTrisDists = []
+            for tri in connectedTris.copy():
+                if tri in tris:
+                    # print('--')
+                    # print(tri)
+                    # print(connectedTris)
+                    connectedTris.remove(tri)
+                    # print(connectedTris)
+                    # print('--')
+                else:
+                    # print("yuh")
+                    connectedTrisDists.append([vertDist[verts.index(tri.vertices[i])] for i in range(0, 3) if
+                                               tri.vertices[i] != closestVert])
+            # print(f\"""connected tris = {connectedTris}\""")
+            # print(f\"""connected dist = {connectedTrisDists}\""")
+            # print(f\"""tris = {tris}\""")
+            # print(connectedTrisDists)
+            while len(connectedTris) > 0:
+                maxDist = max(list(itertools.chain.from_iterable(connectedTrisDists)))
+                maxIndex = int(list(itertools.chain.from_iterable(connectedTrisDists)).index(maxDist) / 2)
+                maxTri = connectedTris[maxIndex]
+                tris.append(maxTri)
+                connectedTris.pop(maxIndex)
+                connectedTrisDists.pop(maxIndex)
+            remainingVerts.remove(closestVert)
+            remainingVertDists.remove(max(remainingVertDists))
+        """
+
+        #for ob in objects:
+        #    if isinstance(ob, Mesh):
+                #for tri in ob.tris:
+        for tri in allTris:
+            # displays a face
+            angle = math.degrees(math.acos(dotProduct(tri.normal, self.cameraVector) / (dist(tri.normal, [0, 0, 0]) * dist(self.cameraVector, [0, 0, 0]))))
+            angle = math.degrees(math.asin(math.sin(math.radians(angle))))
+            # the closer the angle between the normal and the direction of the camera is to 90 degrees, the darker the color
+            # the closer the angle between the normal and the direction of the camera is to 0 degrees, the lighter the color
+            color = [int(255 * ((90 - angle) / 90)), int(255 * ((90 - angle) / 90)),
+                     int(255 * ((90 - angle) / 90))]
+            pg.draw.polygon(self.screen, color, [vert.screenPos for vert in tri.vertices], 0)
+            # selected objects have yellow edges
+            edgeColor = (255, 255, 255)
+            if ob.selected:
+                edgeColor = (255, 200, 0)
+            if ob.mode == "edit":
+                for vert in tri.vertices:
+                    if vert not in displayedVerts:
+                        if vert in ob.selectedVertices:
+                            pg.draw.circle(self.screen, (50, 50, 255), vert.screenPos, 2, 0)
+                        elif vert not in ob.selectedVertices:
+                            pg.draw.circle(self.screen, (255, 255, 255), vert.screenPos, 2, 0)
+                        displayedVerts.append(vert)
+            # edges should only be displayed if the object is selected or in edit mode
+            if ob.mode == "edit" or (ob.mode == "object" and ob.selected):
+                for edge in tri.edges:
+                    if edge not in displayedEdges:
+                        pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
+                        displayedEdges.append(edge)
 
             pivotPoint = self.projectPoint(ob.position)
             pg.draw.circle(self.screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
