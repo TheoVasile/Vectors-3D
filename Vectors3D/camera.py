@@ -140,9 +140,13 @@ class Camera(Object):
         allVerts = []
         vertDist = []
 
+        obFrom = {}
+
         for ob in objects:
             if isinstance(ob, Mesh):
                 allTris += ob.tris
+                for tri in ob.tris:
+                    obFrom[tri] = ob
                 allVerts += ob.vertices
                 vertDist.append(dist(allVerts[-1].get_pos(), [0, 0, 0]))
 
@@ -208,18 +212,18 @@ class Camera(Object):
             pg.draw.polygon(self.screen, color, [vert.screenPos for vert in tri.vertices], 0)
             # selected objects have yellow edges
             edgeColor = (255, 255, 255)
-            if ob.selected:
+            if obFrom[tri].selected:
                 edgeColor = (255, 200, 0)
-            if ob.mode == "edit":
+            if obFrom[tri].mode == "edit":
                 for vert in tri.vertices:
                     if vert not in displayedVerts:
-                        if vert in ob.selectedVertices:
+                        if vert in obFrom[tri].selectedVertices:
                             pg.draw.circle(self.screen, (50, 50, 255), vert.screenPos, 2, 0)
-                        elif vert not in ob.selectedVertices:
+                        elif vert not in obFrom[tri].selectedVertices:
                             pg.draw.circle(self.screen, (255, 255, 255), vert.screenPos, 2, 0)
                         displayedVerts.append(vert)
             # edges should only be displayed if the object is selected or in edit mode
-            if ob.mode == "edit" or (ob.mode == "object" and ob.selected):
+            if obFrom[tri].mode == "edit" or (obFrom[tri].mode == "object" and obFrom[tri].selected):
                 for edge in tri.edges:
                     if edge not in displayedEdges:
                         pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
