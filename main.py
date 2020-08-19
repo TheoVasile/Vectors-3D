@@ -152,7 +152,11 @@ while running:
         if move:
             selectedObject.set_pos([selectedObject.position[0], selectedObject.position[1] + (pg.mouse.get_pos()[0] - oldPos[0]) / 10, selectedObject.position[2] + (pg.mouse.get_pos()[1] - oldPos[1]) / 10])
         if rotate:
-            selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1])/1, selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])/1])
+            if len(selectedObjects) > 1:
+                pivotPoint = v3d.average([selected.position for selected in selectedObjects])
+                selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1]) / 1, selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0]) / 1], pivotPoint)
+            else:
+                selectedObject.set_rot([selectedObject.rotation[0], selectedObject.rotation[1] - (pg.mouse.get_pos()[1] - oldPos[1])/1, selectedObject.rotation[2] - (pg.mouse.get_pos()[0] - oldPos[0])/1])
 
     # project all the objects onto the camera
     selectedCamera.project(objects)

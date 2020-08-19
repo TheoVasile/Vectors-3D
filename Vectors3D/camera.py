@@ -229,7 +229,7 @@ class Camera(Object):
                         pg.draw.line(self.screen, edgeColor, (edge.vert1.screenPos), (edge.vert2.screenPos), 1)
                         displayedEdges.append(edge)
 
-            pivotPoint = self.projectPoint(ob.position)
+            pivotPoint = self.projectPoint(obFrom[tri].position)
             pg.draw.circle(self.screen, (255, 200, 0), [int(pivotPoint[0]), int(pivotPoint[1])], 2, 0)
     def wireframeDisplay(self, objects):
         for ob in objects:
